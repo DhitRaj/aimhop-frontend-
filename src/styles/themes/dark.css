@@ -1,0 +1,13 @@
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --border: #1e293b;
+  --muted: #0f172a;
+  --muted-foreground: #94a3b8;
+  --primary: #334155;
+  --secondary: #38bdf8;
+  --accent: #fbbf24;
+  --success: #34d399;
+}

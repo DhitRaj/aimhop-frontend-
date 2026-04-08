@@ -1,0 +1,13 @@
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #e2e8f0;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --primary: #0f172a; /* Navy Blue */
+  --secondary: #0ea5e9; /* Teal/Light Blue */
+  --accent: #f59e0b; /* Amber/Gold */
+  --success: #10b981;
+}
