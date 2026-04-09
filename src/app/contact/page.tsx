@@ -5,8 +5,9 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import Image from "next/image";
 import ContactForm from "@/components/ContactForm";
-import { settingsAPI } from "@/lib/api";
+import { settingsAPI, bannerAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
+import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: 'Contact AimHop Security | 24/7 Security Support in Gorakhpur & PAN India',
@@ -14,40 +15,36 @@ export const metadata: Metadata = {
   keywords: 'AimHop Contact, Security Guard Service Gorakhpur, Hire Bouncers Lucknow, Best Security Agency, AimHop Customer Care',
 };
 
-async function getSettings() {
-  const res = await settingsAPI.get();
-  return res.data || null;
+async function getContactData() {
+  const [settingsRes, bannersRes] = await Promise.all([
+    settingsAPI.get(),
+    bannerAPI.getAll(true, 'Contact')
+  ]);
+  const activeBanners = bannersRes.data || [];
+  
+  return { 
+    settings: settingsRes.data || null,
+    banner: activeBanners[0] || null
+  };
 }
 
 export default async function ContactPage() {
-  const settings = await getSettings();
-  // API_BASE removed in favor of getMediaUrl utility
+  const { settings, banner } = await getContactData();
 
-  const heroImg = getMediaUrl(settings?.heroImage);
+  const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
+  const heroTitle = banner?.title || "Contact Us";
+  const heroSubtitle = banner?.subtitle || "We are available 24/7 — Call or message anytime";
 
   return (
     <div className="bg-white dark:bg-slate-950 min-h-screen">
       <Navbar />
 
-      <main className="pt-32 pb-20">
-        <section className="relative h-[320px] md:h-[400px] mb-16 bg-slate-950 rounded-b-[3rem] overflow-hidden flex items-center justify-center border-b border-slate-200 dark:border-slate-800">
-          {heroImg && (
-            <Image 
-              src={heroImg} 
-              alt="Security Support Background" 
-              fill
-              className="object-cover object-center opacity-70" 
-              priority
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-          <div className="relative z-10 text-center space-y-3 px-6">
-            <h1 className="text-3xl md:text-6xl font-black tracking-tight text-white uppercase leading-tight drop-shadow-2xl">
-              Contact Us
-            </h1>
-            <p className="text-sky-400 font-bold uppercase tracking-widest text-sm">We&apos;re available 24/7 — Call or message anytime</p>
-          </div>
-        </section>
+      <main className="pb-20">
+        <PageHero
+          title={heroTitle}
+          subtitle={heroSubtitle}
+          backgroundImage={heroImg}
+        />
 
         <div className="max-w-7xl mx-auto px-6">
           <Breadcrumb title="Contact Us" />

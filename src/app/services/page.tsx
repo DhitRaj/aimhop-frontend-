@@ -3,10 +3,11 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PageHero } from "@/components/PageHero";
 import { Shield, Camera, Users, Building2, Paintbrush as Broom, Phone, CheckCircle2, Zap, ArrowRight, Server } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { serviceAPI, settingsAPI } from "@/lib/api";
+import { serviceAPI, settingsAPI, bannerAPI } from "@/lib/api";
 import SafeImage from "@/components/SafeImage";
 import { getMediaUrl } from "@/lib/utils";
 
@@ -25,18 +26,22 @@ export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<any>(null);
+  const [banner, setBanner] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [serRes, setRes] = await Promise.all([serviceAPI.getAll(), settingsAPI.get()]);
+      const [serRes, setRes, banRes] = await Promise.all([serviceAPI.getAll(), settingsAPI.get(), bannerAPI.getAll(true, 'Services')]);
       if (serRes.data) setServices(serRes.data);
       if (setRes.data) setSettings(setRes.data);
+      if (banRes.data && banRes.data.length > 0) setBanner(banRes.data[0]);
       setLoading(false);
     };
     fetchData();
   }, []);
 
-  const heroImg = getMediaUrl(settings?.heroImage);
+  const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
+  const heroTitle = banner?.title || "Our Services";
+  const heroSubtitle = banner?.subtitle || "Professional Security for Every Need";
 
   if (loading) {
     return (
@@ -50,36 +55,12 @@ export default function ServicesPage() {
     <div className="bg-white dark:bg-slate-950 min-h-screen">
       <Navbar />
 
-      <main className="pt-32 pb-20">
-        <section className="relative h-[320px] md:h-[400px] mb-16 bg-slate-950 rounded-b-[3rem] overflow-hidden flex items-center justify-center">
-          {heroImg && (
-            <SafeImage 
-              src={heroImg} 
-              alt="Services Background" 
-              fill
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-70" 
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-          <div className="relative z-10 text-center space-y-6 px-6">
-            <div className="space-y-3">
-              <h1 className="text-3xl md:text-6xl font-black tracking-tight text-white uppercase drop-shadow-2xl">Our Services</h1>
-              <p className="text-sky-400 font-bold uppercase tracking-widest text-sm italic">Professional Security for Every Need</p>
-            </div>
-            {settings?.ctaBrochureEnabled !== false && (
-              <div className="pt-4">
-                <a 
-                  href={getMediaUrl(settings?.brochureUrl)} 
-                  download 
-                  className="inline-flex items-center gap-3 bg-sky-600 hover:bg-sky-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-sky-600/20 transition-all hover:scale-105 active:scale-95 group/btn"
-                >
-                  <Server className="w-5 h-5 group-hover/btn:animate-bounce" />
-                  Download Company Portfolio
-                </a>
-              </div>
-            )}
-          </div>
-        </section>
+      <main className="pb-20">
+        <PageHero
+          title={heroTitle}
+          subtitle={heroSubtitle}
+          backgroundImage={heroImg}
+        />
 
         <div className="max-w-7xl mx-auto px-6">
           <Breadcrumb title="Services" />
@@ -144,17 +125,17 @@ export default function ServicesPage() {
 
           {/* CTA Banner */}
           {settings?.ctaSafetyAuditEnabled !== false && (
-            <div className="mt-20 p-10 bg-slate-900 rounded-3xl text-white overflow-hidden relative group">
-              <Shield className="absolute top-[-40px] right-[-40px] w-48 h-48 text-white/5 group-hover:scale-125 transition-transform duration-[5s]" />
+            <div className="mt-20 p-10 bg-sky-600 dark:bg-slate-900 rounded-3xl text-white overflow-hidden relative group">
+              <Shield className="absolute top-[-40px] right-[-40px] w-48 h-48 text-white/10 group-hover:scale-125 transition-transform duration-[5s]" />
               <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
                 <div className="space-y-5">
                   <h2 className="text-2xl lg:text-4xl font-black tracking-tight uppercase leading-tight">Need a Security Check for Your Premises?</h2>
                   <p className="text-base text-white/80 font-medium">Our experts will visit your premises for a complete security check — absolutely free.</p>
                   <Link href="/contact" className="inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl font-bold text-sm uppercase tracking-wider shadow-xl hover:scale-105 transition-all">Book Free Visit <Zap className="text-sky-600" /></Link>
                 </div>
-                <div className="hidden lg:block bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10">
+                <div className="hidden lg:block bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/20">
                   <div className="text-center space-y-2">
-                    <Phone className="w-10 h-10 mx-auto mb-4 text-sky-600" />
+                    <Phone className="w-10 h-10 mx-auto mb-4 text-white" />
                     <p className="font-black text-2xl uppercase tracking-tight">+91 91513 85320</p>
                     <p className="font-bold text-lg uppercase tracking-tight opacity-70">/ 21 / 22 / 23</p>
                     <p className="text-sm font-medium opacity-60">Call anytime — 24/7 available</p>

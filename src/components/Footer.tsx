@@ -152,13 +152,18 @@ const LinkedinIcon = ({size=18}) => (
           </div>
 
           {/* Head Office Column */}
-          <div className="bg-slate-900 dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-800 space-y-4 shadow-2xl relative overflow-hidden group">
-             <Shield className="absolute -right-6 -bottom-6 w-24 h-24 text-white/5 group-hover:scale-125 transition-transform duration-1000" />
+          <div className="bg-sky-600 p-6 rounded-2xl border border-sky-700 space-y-4 shadow-lg relative overflow-hidden group">
+             <Shield className="absolute -right-6 -bottom-6 w-24 h-24 text-white/10 group-hover:scale-125 transition-transform duration-1000" />
              <div className="relative z-10 space-y-3">
-                <p className="text-[9px] font-black text-sky-400 uppercase tracking-widest">Head Office</p>
-                <p className="text-[11px] font-bold text-white/80 leading-relaxed uppercase">
+                <p className="text-[9px] font-black text-white/60 uppercase tracking-widest">Head Office</p>
+                <p className="text-[11px] font-bold text-white leading-relaxed uppercase">
                    {settings?.address || 'Gorakhpur, Uttar Pradesh, India'}
                 </p>
+                <div className="flex items-center gap-2 pt-1">
+                  <MapPin className="w-3.5 h-3.5 text-white/70" />
+                  <Globe className="w-3.5 h-3.5 text-white/70" />
+                  <span className="text-[9px] text-white/60 font-bold uppercase tracking-wider">PAN India Operations</span>
+                </div>
              </div>
           </div>
         </div>

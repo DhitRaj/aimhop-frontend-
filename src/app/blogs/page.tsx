@@ -8,6 +8,7 @@ import { Calendar, User, ArrowRight, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { blogAPI, settingsAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
+import { PageHero } from "@/components/PageHero";
 
 // API_BASE removed in favor of getMediaUrl utility
 
@@ -30,17 +31,12 @@ export default function BlogsPage() {
     <div className="bg-white dark:bg-slate-950 min-h-screen">
       <Navbar />
 
-      <main className="pt-32 pb-20">
-        <section className="relative h-[320px] md:h-[400px] mb-16 bg-slate-950 rounded-b-[3rem] overflow-hidden flex items-center justify-center">
-          {heroImg && (
-            <img src={heroImg} alt="Background" className="absolute inset-0 w-full h-full object-cover object-center opacity-70" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-          <div className="relative z-10 text-center space-y-4 px-6">
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white uppercase drop-shadow-2xl">Security Insights</h1>
-            <p className="text-sky-400 font-bold uppercase tracking-[0.2em] text-sm">Latest News, Tips & Industry Updates</p>
-          </div>
-        </section>
+      <main className="pb-20">
+        <PageHero
+          title="Security Insights"
+          subtitle="Latest News, Tips & Industry Updates"
+          backgroundImage={heroImg}
+        />
 
         <div className="max-w-7xl mx-auto px-6">
           <Breadcrumb title="Blogs & News" />

@@ -31,7 +31,7 @@ export function Navbar() {
   ];
 
   return (
-    <header className={`fixed top-0 w-full z-[100] transition-all duration-500 ${scrolled ? 'bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-xl py-2' : 'bg-transparent py-4'}`}>
+    <header className={`sticky top-0 w-full z-[100] transition-all duration-300 bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-900 ${scrolled ? 'shadow-sm py-2' : 'py-3'}`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-4 group">
           <div className="relative">

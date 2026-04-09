@@ -78,11 +78,18 @@ async function apiFetch<T>(
         data = await res.json();
       } catch (e) {
         console.error('JSON Parse Error:', e);
+        // Fallback if it claimed to be JSON but wasn't
+        const text = await res.text().catch(() => '');
+        data = { message: text || 'Invalid JSON response from server' };
       }
+    } else {
+      // Handle non-JSON response (like rate limit plain text)
+      const text = await res.text().catch(() => 'No response body');
+      data = { message: text };
     }
 
     if (!res.ok) {
-      return { error: data?.message || `Server Error: ${res.status}` };
+      return { error: data?.message || data?.error || `Server Error: ${res.status}` };
     }
 
     return { data };
@@ -147,7 +154,8 @@ export const careerAPI = {
       method: 'POST',
       body: formData,
     }).then(async (res) => {
-      const data = await res.json();
+      const isJson = res.headers.get('content-type')?.includes('application/json');
+      const data = isJson ? await res.json().catch(() => ({})) : { message: await res.text().catch(() => 'Error body') };
       return res.ok ? { data } : { error: data.message };
     });
   },
@@ -198,7 +206,8 @@ export const settingsAPI = {
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
     }).then(async (res) => {
-      const data = await res.json();
+      const isJson = res.headers.get('content-type')?.includes('application/json');
+      const data = isJson ? await res.json().catch(() => ({})) : { message: await res.text().catch(() => 'Error body') };
       return res.ok ? { data } : { error: data.message };
     });
   },
@@ -206,7 +215,13 @@ export const settingsAPI = {
 
 // ==================== Banner API ====================
 export const bannerAPI = {
-  getAll: (activeOnly = false) => apiFetch<any[]>(`/api/banners${activeOnly ? '?activeOnly=true' : ''}`),
+  getAll: (activeOnly = false, page?: string) => {
+    const params = new URLSearchParams();
+    if (activeOnly) params.set('activeOnly', 'true');
+    if (page) params.set('page', page);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiFetch<any[]>(`/api/banners${query}`);
+  },
   create: (formData: FormData) => 
     fetch(`${API_BASE_URL}/api/banners`, {
       method: 'POST',

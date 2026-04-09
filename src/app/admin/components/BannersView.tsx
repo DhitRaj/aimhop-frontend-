@@ -11,20 +11,27 @@ import {
   Upload,
   Power,
   ChevronRight,
-  Layout
+  Layout,
+  Eye,
+  Monitor,
+  CheckCircle2,
+  Loader2
 } from "lucide-react";
 import { bannerAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
+import { Banner } from "../types";
 
 export function BannersView() {
-  const [banners, setBanners] = useState<any[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBanner, setEditingBanner] = useState<any>(null);
+  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
     title: "",
     subtitle: "",
+    page: "Home",
     order: "0",
     active: true
   });
@@ -34,7 +41,10 @@ export function BannersView() {
   const fetchBanners = async () => {
     setLoading(true);
     const { data } = await bannerAPI.getAll();
-    if (data) setBanners(data);
+    if (data) {
+      const sorted = [...data].sort((a, b) => (a.order || 0) - (b.order || 0));
+      setBanners(sorted);
+    }
     setLoading(false);
   };
 
@@ -42,13 +52,11 @@ export function BannersView() {
     fetchBanners();
   }, []);
 
-  const handleToggleStatus = async (banner: any) => {
+  const handleToggleStatus = async (banner: Banner) => {
     const newStatus = !banner.active;
     const { error } = await bannerAPI.toggleStatus(banner._id, newStatus);
     if (!error) {
       setBanners(banners.map(b => b._id === banner._id ? { ...b, active: newStatus } : b));
-    } else {
-      alert("Error: " + error);
     }
   };
 
@@ -57,16 +65,16 @@ export function BannersView() {
     const { error } = await bannerAPI.delete(id);
     if (!error) {
       setBanners(banners.filter(b => b._id !== id));
-    } else {
-      alert("Error: " + error);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     const data = new FormData();
     data.append("title", formData.title);
     data.append("subtitle", formData.subtitle);
+    data.append("page", formData.page);
     data.append("order", formData.order);
     data.append("active", String(formData.active));
     if (imageFile) data.append("image", imageFile);
@@ -81,20 +89,22 @@ export function BannersView() {
     if (!res.error) {
       setIsModalOpen(false);
       setEditingBanner(null);
-      setFormData({ title: "", subtitle: "", order: "0", active: true });
+      setFormData({ title: "", subtitle: "", page: "Home", order: "0", active: true });
       setImageFile(null);
       setImagePreview(null);
       fetchBanners();
     } else {
       alert("Error: " + res.error);
     }
+    setSubmitting(false);
   };
 
-  const openEdit = (banner: any) => {
+  const openEdit = (banner: Banner) => {
     setEditingBanner(banner);
     setFormData({
       title: banner.title || "",
       subtitle: banner.subtitle || "",
+      page: banner.page || "Home",
       order: String(banner.order || 0),
       active: banner.active ?? true
     });
@@ -102,177 +112,230 @@ export function BannersView() {
     setIsModalOpen(true);
   };
 
+  const activeBannersCount = banners.filter(b => b.active).length;
+
   return (
-    <div className="animate-in fade-in duration-500 pb-20">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 pl-1">
+    <div className="space-y-8 text-left">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Banner Management</h1>
-          <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-wide italic">Manage homepage hero sliders and visibility</p>
+          <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Homepage Banners</h2>
+          <div className="flex items-center gap-3 mt-2">
+            <span className="text-2xl font-bold text-slate-900 dark:text-white">{activeBannersCount}</span>
+            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Active Banners</span>
+          </div>
         </div>
+
         <button 
           onClick={() => {
             setEditingBanner(null);
-            setFormData({ title: "", subtitle: "", order: "0", active: true });
+            setFormData({ title: "", subtitle: "", page: "Home", order: "0", active: true });
             setImageFile(null);
             setImagePreview(null);
             setIsModalOpen(true);
           }}
-          className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:scale-105 active:scale-95 transition-all w-fit"
+          className="w-full md:w-auto bg-indigo-600 text-white px-8 h-12 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20"
         >
-          <Plus size={16} /> New Banner
+          <Plus size={16} strokeWidth={2.5} /> New Banner
         </button>
       </div>
 
       {loading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-4">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-64 bg-slate-100 dark:bg-slate-900 animate-pulse rounded-[2.5rem]" />
+            <div key={i} className="h-24 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800 animate-pulse" />
           ))}
         </div>
-      ) : banners.length === 0 ? (
-        <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-20 text-center border-2 border-dashed border-slate-100 dark:border-slate-800">
-           <ImageIcon size={48} className="mx-auto text-slate-200 mb-4" />
-           <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No banners added yet</p>
-        </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="flex flex-col gap-4">
            {banners.map((banner) => (
-             <div key={banner._id} className={`group bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col h-full ${!banner.active ? 'opacity-60 grayscale' : ''}`}>
-               <div className="relative h-48 bg-slate-100 dark:bg-black overflow-hidden">
+             <div 
+               key={banner._id} 
+               className={`group bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center gap-6 p-4 hover:shadow-sm hover:border-slate-200 dark:hover:border-slate-700 transition-all ${!banner.active ? 'opacity-60 grayscale' : ''}`}
+             >
+               <div className="relative w-32 aspect-video overflow-hidden bg-slate-50 dark:bg-slate-950 rounded-lg shrink-0 border border-slate-200/50 dark:border-slate-800">
                  {banner.image ? (
-                   <img src={getMediaUrl(banner.image)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={banner.title} />
+                   <img src={getMediaUrl(banner.image)} className="w-full h-full object-cover" alt={banner.title} />
                  ) : (
-                   <div className="w-full h-full flex items-center justify-center text-slate-300"><ImageIcon size={40} /></div>
-                 )}
-                 <div className="absolute top-4 right-4 flex gap-2">
-                    <button 
-                      onClick={() => handleToggleStatus(banner)}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${banner.active ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' : 'bg-slate-500 text-white'}`}
-                      title={banner.active ? "Deactivate" : "Activate"}
-                    >
-                      <Power size={16} />
-                    </button>
-                 </div>
-                 {!banner.active && (
-                   <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
-                      <span className="bg-white text-slate-900 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Inactive</span>
-                   </div>
+                   <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700"><ImageIcon size={20} /></div>
                  )}
                </div>
-               <div className="p-8 flex-1 flex flex-col">
-                  <div className="flex items-center justify-between mb-3">
-                     <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest bg-sky-50 dark:bg-sky-900/30 px-3 py-1 rounded-lg">Order: {banner.order}</span>
+               
+               <div className="flex-1 flex flex-col min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-100 dark:border-indigo-800">
+                      {banner.page || 'Home'}
+                    </span>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm line-clamp-1 uppercase tracking-tight">{banner.title || 'Untitled Banner'}</h4>
                   </div>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2 line-clamp-1">{banner.title || 'Untitled Banner'}</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium leading-relaxed mb-6 flex-1 line-clamp-2">{banner.subtitle || 'No description provided'}</p>
-                  
-                  <div className="flex items-center gap-3 pt-6 border-t border-slate-50 dark:border-slate-800">
-                     <button 
-                       onClick={() => openEdit(banner)}
-                       className="flex-1 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-900 dark:hover:bg-white hover:text-white dark:hover:text-slate-900 p-3.5 rounded-xl text-slate-500 transition-all flex items-center justify-center gap-2"
-                     >
-                        <Edit2 size={14} /> <span className="text-[10px] font-black uppercase tracking-widest">Modify</span>
-                     </button>
-                     <button 
-                       onClick={() => handleDelete(banner._id)}
-                       className="w-12 h-12 flex items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-900/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all"
-                     >
-                        <Trash2 size={16} />
-                     </button>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-1 font-medium italic">"{banner.subtitle || 'No description provided'}"</p>
+                  <div className="mt-2 text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] border border-slate-100 dark:border-slate-800 px-2 py-0.5 rounded w-fit bg-slate-50 dark:bg-slate-950">
+                    Order: {banner.order}
                   </div>
+               </div>
+
+               <div className="flex items-center gap-3 shrink-0 pr-2">
+                 {/* Toggle Switch */}
+                 <div className="flex items-center gap-3 mr-4">
+                    <span className={`hidden sm:block text-[9px] font-bold uppercase tracking-[0.2em] ${banner.active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>
+                      {banner.active ? 'Active' : 'Inactive'}
+                    </span>
+                    <button 
+                      onClick={() => handleToggleStatus(banner)}
+                      className={`w-10 h-5 rounded-full relative transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 ${banner.active ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'}`}
+                    >
+                      <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${banner.active ? 'left-[22px]' : 'left-0.5'}`} />
+                    </button>
+                 </div>
+
+                 <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-2 hidden sm:block" />
+
+                 <button 
+                   onClick={() => openEdit(banner)}
+                   className="p-2.5 bg-slate-50 dark:bg-slate-950 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-slate-100 dark:border-slate-800/50"
+                 >
+                   <Edit2 size={14} />
+                 </button>
+
+                 <button 
+                   onClick={() => handleDelete(banner._id)}
+                   className="p-2.5 rounded-lg text-rose-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all"
+                 >
+                   <Trash2 size={14} />
+                 </button>
                </div>
              </div>
            ))}
+           
+           {banners.length === 0 && (
+             <div className="col-span-full py-20 rounded-2xl border-2 border-dashed border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center text-center">
+                <ImageIcon size={40} className="text-slate-200 dark:text-slate-800 mb-4" />
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">No banners found</p>
+             </div>
+           )}
         </div>
       )}
 
-      {/* Modal */}
+      {/* Configuration Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
-          <div className="bg-white dark:bg-slate-900 rounded-[3rem] w-full max-w-2xl overflow-hidden relative shadow-2xl animate-in zoom-in-95 duration-300">
-             <div className="p-8 md:p-12">
-                <div className="flex items-center justify-between mb-8">
-                   <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{editingBanner ? "Modify Banner" : "New Hero Asset"}</h2>
-                   <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-slate-900 transition-colors"><X size={20} /></button>
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsModalOpen(false)} />
+          <div className="relative bg-white dark:bg-slate-900 w-full max-w-lg max-h-[90vh] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden">
+            <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/50 shrink-0">
+              <h2 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">
+                {editingBanner ? "Edit Banner" : "New Banner"}
+              </h2>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Banner Title</label>
+                  <input 
+                    type="text" 
+                    value={formData.title} 
+                    onChange={e => setFormData({...formData, title: e.target.value})}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3 h-11 text-xs font-bold uppercase tracking-tight text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    placeholder="Enter headline..."
+                    required
+                  />
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                   <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Main Heading</label>
-                         <input 
-                           type="text" 
-                           placeholder="Ex: Security You Can Trust"
-                           value={formData.title} 
-                           onChange={e => setFormData({...formData, title: e.target.value})}
-                           className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-sky-600/10 focus:border-sky-600/30 transition-all text-slate-900 dark:text-white"
-                           required
-                         />
-                      </div>
-                      <div className="space-y-2">
-                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Display Order</label>
-                         <input 
-                           type="number" 
-                           value={formData.order} 
-                           onChange={e => setFormData({...formData, order: e.target.value})}
-                           className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-sky-600/10 focus:border-sky-600/30 transition-all text-slate-900 dark:text-white"
-                         />
-                      </div>
-                   </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Display Page</label>
+                    <div className="relative">
+                      <select 
+                        value={formData.page}
+                        onChange={e => setFormData({...formData, page: e.target.value})}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3 h-11 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer uppercase tracking-widest"
+                      >
+                        <option value="Home">Home Page</option>
+                        <option value="About">About Us</option>
+                        <option value="Services">Services</option>
+                        <option value="Clients">Clients</option>
+                        <option value="Careers">Careers</option>
+                        <option value="Contact">Contact</option>
+                      </select>
+                      <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={14} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Display Order</label>
+                    <input 
+                      type="number" 
+                      value={formData.order} 
+                      onChange={e => setFormData({...formData, order: e.target.value})}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3 h-11 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
 
-                   <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Description / Subtitle</label>
-                      <textarea 
-                        rows={3}
-                        placeholder="Catchy subtext for the banner..."
-                        value={formData.subtitle} 
-                        onChange={e => setFormData({...formData, subtitle: e.target.value})}
-                        className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-sky-600/10 focus:border-sky-600/30 transition-all text-slate-900 dark:text-white resize-none"
-                      />
-                   </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Description / Subtitle</label>
+                  <textarea 
+                    rows={2}
+                    value={formData.subtitle} 
+                    onChange={e => setFormData({...formData, subtitle: e.target.value})}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-medium italic text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
+                    placeholder="Enter description..."
+                  />
+                </div>
 
-                   <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Banner Visual (1920x800 recommended)</label>
-                      <div className="flex items-center gap-6 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-800">
-                         <div className="w-24 h-16 rounded-xl bg-white dark:bg-slate-950 overflow-hidden ring-1 ring-slate-100 dark:ring-slate-800 flex items-center justify-center shrink-0">
-                            {imagePreview ? <img src={imagePreview} className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-slate-200" />}
-                         </div>
-                         <div className="flex-1 flex flex-col gap-2">
-                            <label className="cursor-pointer bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 w-fit transition-transform active:scale-95">
-                               <Upload size={14} /> {imagePreview ? "Change Visual" : "Upload Image"}
-                               <input type="file" onChange={e => {
-                                 const file = e.target.files?.[0] || null;
-                                 setImageFile(file);
-                                 setImagePreview(file ? URL.createObjectURL(file) : null);
-                               }} className="hidden" />
-                            </label>
-                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">Format: JPG, PNG, WebP (Max 15MB)</p>
-                         </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Banner Image</label>
+                  <div className="h-32 bg-slate-50 dark:bg-slate-950 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center group hover:border-indigo-500/50 transition-all relative overflow-hidden">
+                    {imagePreview ? (
+                      <div className="w-full h-full relative">
+                        <img src={imagePreview} className="w-full h-full object-cover" alt="Preview" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                           <label className="cursor-pointer bg-white text-slate-900 px-4 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-slate-100 shadow-sm">
+                              Change Image
+                              <input type="file" onChange={e => {
+                                const file = e.target.files?.[0] || null;
+                                setImageFile(file);
+                                setImagePreview(file ? URL.createObjectURL(file) : null);
+                              }} className="hidden" />
+                           </label>
+                        </div>
                       </div>
-                   </div>
+                    ) : (
+                      <label className="cursor-pointer flex flex-col items-center gap-2 text-slate-400 hover:text-indigo-500 transition-colors w-full h-full justify-center">
+                        <Upload size={20} />
+                        <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Click to Upload</span>
+                        <input type="file" onChange={e => {
+                          const file = e.target.files?.[0] || null;
+                          setImageFile(file);
+                          setImagePreview(file ? URL.createObjectURL(file) : null);
+                        }} className="hidden" />
+                      </label>
+                    )}
+                  </div>
+                </div>
 
-                   <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                         <button 
-                           type="button"
-                           onClick={() => setFormData({...formData, active: !formData.active})}
-                           className={`w-12 h-6 rounded-full relative transition-all ${formData.active ? 'bg-sky-600' : 'bg-slate-200 dark:bg-slate-700'}`}
-                         >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${formData.active ? 'left-7' : 'left-1'}`} />
-                         </button>
-                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Live Status</span>
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                         <button type="button" onClick={() => setIsModalOpen(false)} className="text-xs font-black uppercase text-slate-400 hover:text-slate-600 transition-colors">Discard</button>
-                         <button type="submit" className="bg-sky-600 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all">
-                            <Save size={16} /> {editingBanner ? "Update Assets" : "Publish Online"}
-                         </button>
-                      </div>
-                   </div>
-                </form>
-             </div>
+                <div className="pt-4 flex items-center justify-end gap-3">
+                  <button 
+                    type="button"
+                    onClick={() => setIsModalOpen(false)} 
+                    className="px-6 h-10 text-[10px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all uppercase tracking-widest"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={(e: any) => handleSubmit(e)}
+                    disabled={submitting}
+                    className="bg-indigo-600 text-white px-8 h-10 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 disabled:opacity-50"
+                  >
+                    {submitting ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} 
+                    {editingBanner ? "Save Changes" : "Save Banner"}
+                  </button>
+                </div>
+            </form>
           </div>
         </div>
       )}

@@ -1,18 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, Building2, Save, X, Search, Image as ImageIcon } from "lucide-react";
+import { 
+  Plus, 
+  Trash2, 
+  Building2, 
+  Save, 
+  X, 
+  Search, 
+  Image as ImageIcon, 
+  Loader2, 
+  Globe, 
+  Upload,
+  CheckCircle2
+} from "lucide-react";
 import { clientAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
+import { Client } from "../types";
 
-export function ClientsView({ clients, refresh }: { clients: any[], refresh: () => void }) {
+export function ClientsView({ clients, refresh }: { clients: Client[], refresh: () => void }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', industry: '', order: 0 });
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-
-
 
   const resetForm = () => {
     setFormData({ name: '', industry: '', order: 0 });
@@ -38,7 +49,7 @@ export function ClientsView({ clients, refresh }: { clients: any[], refresh: () 
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Permanently delete this client?')) {
+    if (confirm('Are you sure you want to delete this client?')) {
       await clientAPI.delete(id);
       refresh();
     }
@@ -47,92 +58,131 @@ export function ClientsView({ clients, refresh }: { clients: any[], refresh: () 
   const filtered = clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="animate-in fade-in duration-500 space-y-6">
-      
+    <div className="space-y-8 text-left">
       {/* Search & Actions Bar */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
-         <div className="relative w-full md:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-950 p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+         <div className="relative w-full sm:max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
             <input 
-              type="text" 
-              placeholder="Search clients..." 
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl pl-12 pr-4 py-3 text-sm font-bold outline-none tracking-tight ring-0 focus:ring-1 focus:ring-sky-600/20 transition-all"
+               type="text" 
+               placeholder="Search by company name..." 
+               value={search}
+               onChange={e => setSearch(e.target.value)}
+               className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 rounded-lg pl-12 pr-4 py-3 h-11 text-xs font-bold outline-none focus:ring-1 focus:ring-slate-200 transition-all text-slate-900 dark:text-white placeholder:text-slate-300"
             />
          </div>
          <button 
-           onClick={() => setModalOpen(true)}
-           className="w-full md:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10"
+            onClick={() => setModalOpen(true)}
+            className="w-full sm:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 h-11 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-sm"
          >
-            <Plus size={18} /> Add New Client
+            <Plus size={14} /> Add New Client
          </button>
       </div>
 
-      {/* Grid of Clients */}
-      <div className="grid md:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
          {filtered.map(c => (
-           <div key={c._id} className="bg-white dark:bg-slate-900/50 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-6 flex flex-col items-center text-center group hover:border-sky-600/20 transition-all shadow-sm">
-              <div className="relative w-20 h-20 mb-4 group-hover:scale-110 transition-transform duration-500">
-                <div className="w-full h-full bg-white dark:bg-slate-800 rounded-3xl overflow-hidden flex items-center justify-center border border-slate-100 dark:border-slate-800 shadow-inner">
-                   {c.logo ? (
-                     <img src={getMediaUrl(c.logo)} className="w-full h-full object-contain p-2" alt={c.name} />
+            <div key={c._id} className="group bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center text-center hover:border-slate-300 dark:hover:border-slate-700 transition-all relative">
+               <div className="w-20 h-20 mb-6 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-center p-4 border dark:border-slate-800 shadow-sm">
+                  {c.logo ? (
+                     <img src={getMediaUrl(c.logo)} className="w-full h-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" alt={c.name} />
                   ) : (
-                     <Building2 size={24} className="text-slate-300" />
+                     <Building2 size={32} className="text-slate-200 dark:text-slate-800" />
                   )}
-                </div>
-                <button 
+               </div>
+
+               <h4 className="font-bold text-slate-900 dark:text-white text-[11px] uppercase tracking-widest line-clamp-1">{c.name}</h4>
+               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2 whitespace-nowrap overflow-hidden text-ellipsis w-full px-2">{c.industry || 'General'}</p>
+
+               <button 
                   onClick={() => handleDelete(c._id)}
-                  className="absolute -top-2 -right-2 w-8 h-8 bg-rose-500 text-white rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-              <h4 className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-sm line-clamp-1">{c.name}</h4>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">{c.industry}</p>
-           </div>
+                  className="absolute top-3 right-3 p-2 text-slate-200 dark:text-slate-800 hover:text-rose-600 dark:hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all bg-white dark:bg-slate-950 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800"
+               >
+                  <Trash2 size={12} />
+               </button>
+            </div>
          ))}
+         
          {filtered.length === 0 && (
-           <div className="col-span-full py-20 text-center opacity-50">
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400">No client partners found.</p>
-           </div>
+            <div className="col-span-full py-24 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-slate-900/10">
+               <Globe size={48} className="text-slate-100 dark:text-slate-900 mb-6" />
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">No clients matching your search</p>
+            </div>
          )}
       </div>
 
-      {/* --- ADD MODAL --- */}
+      {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
-           <div className="absolute inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm" onClick={resetForm} />
-           <div className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-slate-100 dark:border-slate-800">
-              <div className="px-10 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/10">
-                 <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Add New Client</h2>
-                 <button onClick={resetForm} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl text-slate-400 transition-all">
-                    <X size={20} />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+           <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md" onClick={resetForm} />
+           
+           <div className="relative bg-white dark:bg-slate-950 w-full max-w-lg rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col animate-in zoom-in-95 duration-200">
+              <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-950">
+                 <h2 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">Add New Client</h2>
+                 <button onClick={resetForm} className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    <X size={18} />
                  </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-10 space-y-6">
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Company Name</label>
-                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none"/>
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Industry / Sector</label>
-                    <input required type="text" value={formData.industry} onChange={e => setFormData({...formData, industry: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-sm font-bold outline-none" placeholder="e.g. Banking, IT, Retail"/>
+              <form onSubmit={handleSubmit} className="p-10 space-y-10">
+                 <div className="grid md:grid-cols-2 gap-10">
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Company Name</label>
+                       <input 
+                          required 
+                          type="text" 
+                          value={formData.name} 
+                          onChange={e => setFormData({...formData, name: e.target.value})} 
+                          className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 rounded-lg px-4 py-3.5 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-slate-200 transition-all h-12" 
+                          placeholder="e.g. Globex Inc"
+                       />
+                    </div>
+                    
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Industry Sector</label>
+                       <input 
+                          required 
+                          type="text" 
+                          value={formData.industry} 
+                          onChange={e => setFormData({...formData, industry: e.target.value})} 
+                          className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 rounded-lg px-4 py-3.5 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-slate-200 transition-all h-12" 
+                          placeholder="e.g. Technology"
+                       />
+                    </div>
                  </div>
                  
-                 <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-4">
-                    <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-center border border-slate-200 dark:border-slate-700 relative overflow-hidden">
-                       {file ? <div className="absolute inset-0 bg-sky-600 flex items-center justify-center text-white text-[9px] font-black uppercase">Ready</div> : <ImageIcon size={24} className="text-slate-300" />}
-                       <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                 <div className="space-y-2">
+                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Client Logo Asset</label>
+                    <div className="aspect-video bg-slate-50 dark:bg-slate-900 rounded-xl border-2 border-dashed border-slate-100 dark:border-slate-800 relative flex items-center justify-center overflow-hidden hover:border-slate-200 group transition-all p-1">
+                       {file ? (
+                          <div className="flex flex-col items-center gap-3 text-emerald-500">
+                             <CheckCircle2 size={32} />
+                             <span className="text-[9px] font-bold uppercase tracking-widest italic">Logo Selected</span>
+                          </div>
+                       ) : (
+                          <div className="flex flex-col items-center gap-4 text-slate-300 py-10">
+                             <div className="p-3 bg-white dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm">
+                                <Upload size={24} className="text-slate-400" />
+                             </div>
+                             <div className="text-center">
+                               <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest block mb-1">Upload Brand Mark</span>
+                               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest italic">Alpha-channel PNG preferred</span>
+                             </div>
+                          </div>
+                       )}
+                       <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
                     </div>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Upload Company Logo</p>
                  </div>
 
-                 <div className="pt-4 flex gap-3">
-                    <button onClick={resetForm} type="button" className="flex-1 py-4 bg-slate-50 dark:bg-slate-800 text-slate-500 rounded-2xl text-[10px] font-bold uppercase tracking-widest">Cancel</button>
-                    <button disabled={loading} type="submit" className="flex-[2] bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
-                       <Save size={16} /> {loading ? 'Saving...' : 'Add Client'}
+                 <div className="pt-8 flex items-center justify-end gap-6 border-t border-slate-100 dark:border-slate-800">
+                    <button onClick={resetForm} type="button" className="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-widest transition-colors">Cancel</button>
+                    <button 
+                       disabled={loading} 
+                       type="submit" 
+                       className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 h-11 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-3 transition-opacity shadow-sm hover:opacity-90 disabled:opacity-50"
+                    >
+                       {loading ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                       {loading ? 'Processing...' : 'Save Client'}
                     </button>
                  </div>
               </form>

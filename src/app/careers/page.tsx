@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { careerAPI, settingsAPI } from "@/lib/api";
+import { careerAPI, settingsAPI, bannerAPI } from "@/lib/api";
 import { Briefcase, Upload, Send, CheckCircle2, AlertCircle, FileText, Zap } from "lucide-react";
 import { getMediaUrl } from "@/lib/utils";
+import { PageHero } from "@/components/PageHero";
 
 export default function CareersPage() {
   const [formData, setFormData] = useState({
@@ -20,16 +21,20 @@ export default function CareersPage() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
   const [settings, setSettings] = useState<any>(null);
+  const [banner, setBanner] = useState<any>(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
 
   useEffect(() => {
-    settingsAPI.get().then(res => { 
-      if (res.data) setSettings(res.data); 
+    Promise.all([settingsAPI.get(), bannerAPI.getAll(true, 'Careers')]).then(([setRes, banRes]) => {
+      if (setRes.data) setSettings(setRes.data);
+      if (banRes.data && banRes.data.length > 0) setBanner(banRes.data[0]);
       setLoadingSettings(false);
     }).catch(() => setLoadingSettings(false));
   }, []);
 
-  const heroImg = getMediaUrl(settings?.heroImage);
+  const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
+  const heroTitle = banner?.title || "Join Our Force";
+  const heroSubtitle = banner?.subtitle || "Build a rewarding career with AimHop Security Solutions";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,21 +94,12 @@ export default function CareersPage() {
     <div className="bg-white dark:bg-slate-950 min-h-screen font-sans">
       <Navbar />
 
-      <main className="pt-32 pb-20">
-        <section className="relative h-[350px] md:h-[400px] mb-16 bg-slate-950 rounded-b-[4rem] overflow-hidden flex items-center justify-center">
-          {heroImg && (
-            <img
-              src={heroImg}
-              alt="Background"
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-70"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-          <div className="relative z-10 text-center space-y-4 px-6">
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white uppercase italic drop-shadow-2xl">Join Our Force</h1>
-            <p className="text-sky-400 font-bold uppercase tracking-[0.3em] text-sm">Become a part of AimHop Security services</p>
-          </div>
-        </section>
+      <main className="pb-20">
+        <PageHero
+          title={heroTitle}
+          subtitle={heroSubtitle}
+          backgroundImage={heroImg}
+        />
 
         <div className="max-w-7xl mx-auto px-6">
           <Breadcrumb title="Careers" />
@@ -252,7 +248,7 @@ export default function CareersPage() {
                 <button
                   disabled={loading}
                   type="submit"
-                  className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-6 rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-4 group"
+                  className="w-full bg-sky-600 hover:bg-sky-700 dark:bg-white dark:text-slate-900 text-white py-6 rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-4 group"
                 >
                   {loading ? "Submitting..." : "Submit Application"}
                   <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />

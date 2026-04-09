@@ -4,42 +4,38 @@ import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PageHero } from "@/components/PageHero";
 import { Shield, CheckCircle2, Award } from "lucide-react";
-import { settingsAPI } from "@/lib/api";
+import { settingsAPI, bannerAPI } from "@/lib/api";
 import SafeImage from "@/components/SafeImage";
 import { getMediaUrl } from "@/lib/utils";
 
 export function AboutPage() {
   const [settings, setSettings] = useState<any>(null);
+  const [banner, setBanner] = useState<any>(null);
 
   useEffect(() => {
-    settingsAPI.get().then(res => { if (res.data) setSettings(res.data); });
+    Promise.all([settingsAPI.get(), bannerAPI.getAll(true, 'About')]).then(([setRes, banRes]) => {
+      if (setRes.data) setSettings(setRes.data);
+      if (banRes.data && banRes.data.length > 0) setBanner(banRes.data[0]);
+    });
   }, []);
 
   const directorImg = getMediaUrl(settings?.directorImage);
-  const heroImg = getMediaUrl(settings?.heroImage);
+  const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
+  const heroTitle = banner?.title || "About AimHop";
+  const heroSubtitle = banner?.subtitle || "Trusted Security Partner Since 2020";
 
   return (
     <div className="bg-white dark:bg-slate-950 min-h-screen">
       <Navbar />
 
-      <main className="pt-32 pb-20">
-        {/* Banner Section */}
-        <section className="relative h-[320px] md:h-[400px] mb-16 bg-slate-950 rounded-b-[3rem] overflow-hidden flex items-center justify-center">
-          {heroImg && (
-            <SafeImage 
-              src={heroImg} 
-              alt="About AimHop" 
-              fill
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-70" 
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-          <div className="relative z-10 text-center space-y-3 px-6">
-            <h1 className="text-3xl md:text-6xl font-black tracking-tight text-white uppercase drop-shadow-2xl">About AimHop</h1>
-            <p className="text-sky-400 font-bold uppercase tracking-widest text-sm">Trusted Security Partner Since 2020</p>
-          </div>
-        </section>
+      <main className="pb-20">
+        <PageHero
+          title={heroTitle}
+          subtitle={heroSubtitle}
+          backgroundImage={heroImg}
+        />
 
         <div className="max-w-7xl mx-auto px-6">
           <Breadcrumb title="About Us" />
@@ -51,20 +47,8 @@ export function AboutPage() {
                   Company Profile
                 </h2>
                 <p className="text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                  Aimhop Security Solution Private Limited is an ISO 9001:2020 Certified leading Security Service Provider established in 2020. The company has expanded at a compound annual growth over the last year. We provide manpower services in strict accordance with physical, educational & medical standards. The company is committed to providing customized site-specific training through an experienced training team as per the training syllabus of the Private Securities Regulation Act 2005.
+                  Aimhop Security Solution Private Limited is an ISO 9001:2020 Certified leading Security Service Provider established in 2020. The company has expanded at a compound annual growth over the last year. We provide manpower services in strict accordance with physical, educational &amp; medical standards. The company is committed to providing customized site-specific training through an experienced training team as per the training syllabus of the Private Securities Regulation Act 2005.
                 </p>
-                {settings?.ctaBrochureEnabled !== false && (
-                  <div className="pt-4">
-                    <a 
-                      href={getMediaUrl(settings?.brochureUrl)} 
-                      download 
-                      className="inline-flex items-center gap-3 bg-sky-600 hover:bg-sky-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-sky-600/20 transition-all hover:scale-110 active:scale-95 group/btn"
-                    >
-                      <Shield className="w-5 h-5 group-hover/btn:rotate-12 transition-transform" />
-                      Download Professional Profile
-                    </a>
-                  </div>
-                )}
               </div>
 
               <div className="space-y-6">

@@ -22,7 +22,7 @@ import {
   Mail, 
   UserCircle, 
   ShieldCheck, 
-  Settings, 
+  Settings as SettingsIcon, 
   LogOut, 
   ExternalLink,
   ChevronRight,
@@ -34,7 +34,14 @@ import {
   X,
   Sun,
   Moon,
-  Layout
+  Layout,
+  Bell,
+  Search,
+  Command,
+  Database,
+  Globe,
+  Lock,
+  Zap
 } from "lucide-react";
 import { useAdminTheme } from "./layout";
 
@@ -48,7 +55,7 @@ import { ClientsView } from "./components/ClientsView";
 import { TestimonialsView } from "./components/TestimonialsView";
 import { BlogsView } from "./components/BlogsView";
 import { BannersView } from "./components/BannersView";
-import { Contact, Career } from "./types";
+import { Contact, Career, Service, Blog, Client, Testimonial, Banner, Settings, Stats } from "./types";
 
 // ── Admin Page Container ───────────────────────────────────────────────────────
 type Tab = "dashboard" | "messages" | "careers" | "services" | "clients" | "testimonials" | "blogs" | "banners" | "settings";
@@ -59,13 +66,13 @@ export default function AdminPage() {
   const [mounted, setMounted] = useState(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [careers, setCareers] = useState<Career[]>([]);
-  const [services, setServices] = useState<any[]>([]);
-  const [clients, setClients] = useState<any[]>([]);
-  const [testimonials, setTestimonials] = useState<any[]>([]);
-  const [settings, setSettings] = useState<any>(null);
-  const [blogs, setBlogs] = useState<any[]>([]);
-  const [banners, setBanners] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -121,12 +128,14 @@ export default function AdminPage() {
     fetchData();
   }, [router]);
 
+  if (!mounted) return null;
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-500 font-medium tracking-tight">Admin Environment Initializing...</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-[3px] border-slate-900 border-t-transparent dark:border-white rounded-full animate-spin" />
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Loading Admin Panel...</p>
         </div>
       </div>
     );
@@ -135,165 +144,195 @@ export default function AdminPage() {
   const navItems: { tab: Tab; icon: any; label: string }[] = [
     { tab: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { tab: "messages", icon: Mail, label: "Messages" },
-    { tab: "careers", icon: UserCircle, label: "Careers" },
-    { tab: "services", icon: ShieldCheck, label: "Services" },
+    { tab: "careers", icon: UserCircle, label: "Job Applications" },
+    { tab: "services", icon: ShieldCheck, label: "Our Services" },
+    { tab: "blogs", icon: FileText, label: "Blog Posts" },
     { tab: "clients", icon: Users, label: "Our Clients" },
-    { tab: "testimonials", icon: MessageSquare, label: "Reviews" },
-    { tab: "blogs", icon: FileText, label: "Blogs" },
-    { tab: "banners", icon: Layout, label: "Banners" },
-    { tab: "settings", icon: Settings, label: "Settings" },
+    { tab: "testimonials", icon: MessageSquare, label: "Testimonials" },
+    { tab: "banners", icon: Layout, label: "Website Banners" },
+    { tab: "settings", icon: SettingsIcon, label: "General Settings" },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex font-sans text-slate-900 scroll-smooth overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-slate-950 flex font-sans text-slate-900 selection:bg-slate-900 selection:text-white dark:selection:bg-white dark:selection:text-slate-900 transition-colors duration-500">
       {/* Sidebar Overlay (Mobile) */}
       {mobileSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] lg:hidden"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] lg:hidden animate-in fade-in duration-300"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed inset-y-0 left-0 z-[70] shadow-sm transform transition-transform duration-300 ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="p-7 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-3">
-             {settings?.logo ? (
-                <div className="w-11 h-11 flex items-center justify-center">
-                  <img src={getMediaUrl(settings.logo)} className="w-full h-full object-contain" alt="Logo" />
-                </div>
-             ) : (
-                <div className="w-9 h-9 bg-sky-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg shadow-sky-600/20">A</div>
-             )}
-             <div>
-               <p className="font-black text-slate-900 dark:text-white text-lg lg:text-xl leading-none uppercase tracking-tighter">
-                 AimHop
-               </p>
-               <p className="text-[10px] font-black text-sky-600 uppercase tracking-[0.3em] mt-1 ml-0.5">Admin</p>
-             </div>
-          </div>
+      <aside className={`w-[280px] bg-[#0F172A] border-r border-slate-800 flex flex-col fixed inset-y-0 left-0 z-[70] transition-all duration-300 ease-in-out transform ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="h-16 flex items-center px-8 border-b border-white/5">
+          <Link href="/admin" className="flex items-center gap-3">
+             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-xs shadow-lg shadow-indigo-600/30">A</div>
+             <p className="font-bold text-white text-sm tracking-tight">
+               AimHop <span className="text-slate-500 font-medium ml-1">Admin</span>
+             </p>
+          </Link>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navItems.map(({ tab, icon: Icon, label }) => (
-            <button
-              key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                setMobileSidebarOpen(false);
-              }}
-              className={`w-full flex items-center justify-between px-5 py-4 rounded-xl text-sm font-bold transition-all ${
-                activeTab === tab
-                  ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl shadow-slate-900/10 dark:shadow-white/10"
-                  : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <Icon size={18} />
-                {label}
-              </div>
-              {activeTab === tab && <ChevronRight size={14} />}
-            </button>
-          ))}
-        </nav>
+        <div className="px-4 py-8 flex flex-col h-full overflow-hidden">
+          <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-1">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] px-4 mb-4">Control Center</p>
+            {navItems.map(({ tab, icon: Icon, label }) => (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setMobileSidebarOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[11px] font-semibold transition-all duration-200 ${
+                  activeTab === tab
+                    ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Icon size={16} strokeWidth={activeTab === tab ? 2.5 : 2} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </nav>
 
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-          <Link href="/" target="_blank" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-            <ExternalLink size={16} />
-            Live Preview
-          </Link>
+          <div className="mt-auto pt-6 border-t border-white/5">
+            <Link 
+              href="/" 
+              target="_blank" 
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white transition-all group"
+            >
+              <ExternalLink size={14} />
+              <span className="text-[10px] font-bold uppercase tracking-widest">Visit Site</span>
+            </Link>
+          </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-72 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-40 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 px-6 py-3 flex items-center justify-between transition-all">
-          <div className="flex items-center gap-4">
+      <div className="flex-1 lg:ml-[280px] flex flex-col min-h-screen relative bg-white dark:bg-slate-950">
+        {/* Header Navigation */}
+        <header className="sticky top-0 z-50 h-16 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-900 px-8 flex items-center justify-between">
+          <div className="flex items-center gap-6">
             <button 
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
-              className="lg:hidden p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              className="lg:hidden w-9 h-9 flex items-center justify-center text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-all"
             >
-              {mobileSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileSidebarOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
-            <h1 className="font-bold text-base md:text-lg text-slate-900 dark:text-white tracking-tight">
-              {navItems.find(n => n.tab === activeTab)?.label || activeTab}
-            </h1>
+            
+            <div className="flex items-center gap-3">
+              <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 hidden lg:block" />
+              <h1 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+                {navItems.find(n => n.tab === activeTab)?.label || activeTab}
+              </h1>
+            </div>
           </div>
 
           <div className="flex items-center gap-6">
-             <div className="flex items-center gap-4 text-slate-400">
+             <div className="flex items-center gap-3">
                 <button 
-                    onClick={() => toggleAdminTheme()}
-                    className="hover:text-slate-900 dark:hover:text-white transition-colors"
-                    title="Theme"
+                  onClick={() => toggleAdminTheme()}
+                  className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all"
                 >
-                    {mounted && (adminTheme === 'dark' ? <Sun size={17} /> : <Moon size={17} />)}
-                </button>
-                <button 
-                    onClick={fetchData} 
-                    className={`hover:text-slate-900 dark:hover:text-white transition-colors ${loading ? "animate-spin text-sky-500" : ""}`}
-                    title="Refresh"
-                >
-                    <RefreshCw size={17} />
-                </button>
-             </div>
-
-             <div className="h-5 w-[1px] bg-slate-200 dark:bg-slate-800 hidden sm:block" />
-
-             <div className="flex items-center gap-4 relative">
-                <button 
-                  onClick={() => setProfileOpen(!profileOpen)}
-                  className="hidden sm:flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded-xl transition-all"
-                >
-                   <div className="w-8 h-8 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center text-[10px] font-black shadow-lg shadow-slate-900/10 transition-transform active:scale-95">A</div>
-                   <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Admin</span>
+                  {adminTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
                 
-                {/* Profile Dropdown */}
-                {profileOpen && (
-                  <>
-                    <div className="fixed inset-0 z-0" onClick={() => setProfileOpen(false)} />
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 p-2 animate-in zoom-in-95 slide-in-from-top-2 duration-200 z-10">
-                       <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Management</p>
-                          <p className="text-xs font-black text-slate-900 dark:text-white mt-1 uppercase">Admin Panel</p>
-                       </div>
-                       <button 
-                         onClick={() => {
-                           setProfileOpen(false);
-                           handleLogout();
-                         }}
-                         className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-xl transition-all"
-                       >
-                          <LogOut size={14} />
-                          Sign Out
-                       </button>
-                    </div>
-                  </>
-                )}
-
                 <button 
-                  onClick={handleLogout}
-                  className="sm:hidden text-slate-400 p-2"
+                  onClick={fetchData} 
+                  className={`w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all ${loading ? "animate-spin" : ""}`}
                 >
-                   <LogOut size={18} />
+                  <RefreshCw size={18} />
                 </button>
              </div>
+
+             <div className="h-8 w-px bg-slate-100 dark:bg-slate-800" />
+
+              <div className="relative">
+                 <button 
+                   onClick={() => setProfileOpen(!profileOpen)}
+                   className="flex items-center gap-3 py-1.5 rounded-lg transition-all"
+                 >
+                    <div className="w-8 h-8 rounded-full bg-slate-950 dark:bg-white text-white dark:text-slate-950 flex items-center justify-center text-[10px] font-black uppercase">A</div>
+                    <div className="hidden sm:block text-left">
+                       <p className="text-[10px] font-black text-slate-950 dark:text-white uppercase tracking-tight">System Admin</p>
+                       <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Available</p>
+                    </div>
+                 </button>
+                 
+                 {profileOpen && (
+                   <>
+                     <div className="fixed inset-0 z-0" onClick={() => setProfileOpen(false)} />
+                     <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-950 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 p-2 z-10 animate-in slide-in-from-top-2 duration-200">
+                        <div className="px-4 py-3 border-b border-slate-50 dark:border-slate-800 mb-1">
+                           <p className="text-[10px] font-black text-slate-950 dark:text-white uppercase tracking-widest">Administrator</p>
+                           <p className="text-[9px] text-slate-400 mt-1 uppercase tracking-tight font-bold">admin@aimhop.com</p>
+                        </div>
+                        
+                        <div className="space-y-0.5">
+                          <button className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-500 hover:text-slate-950 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all rounded-lg uppercase tracking-widest">
+                             <UserCircle size={14} /> My Profile
+                          </button>
+                          <div className="h-px bg-slate-50 dark:bg-slate-800 my-1.5" />
+                          <button 
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all rounded-lg uppercase tracking-[0.2em]"
+                          >
+                             <LogOut size={14} /> End Session
+                          </button>
+                        </div>
+                     </div>
+                   </>
+                 )}
+              </div>
           </div>
         </header>
 
-        <main className="flex-1 p-6 md:p-10 max-w-[1440px]">
-          {activeTab === "dashboard" && <DashboardView stats={stats} latestContacts={contacts} />}
-          {activeTab === "messages" && <MessagesView contacts={contacts} />}
-          {activeTab === "careers" && <CareersView careers={careers} />}
-          {activeTab === "services" && <ServicesView services={services} refresh={fetchData} />}
-          {activeTab === "clients" && <ClientsView clients={clients} refresh={fetchData} />}
-          {activeTab === "testimonials" && <TestimonialsView testimonials={testimonials} refresh={fetchData} />}
-          {activeTab === "blogs" && <BlogsView blogs={blogs} refresh={fetchData} />}
-          {activeTab === "banners" && <BannersView />}
-          {activeTab === "settings" && <SettingsView settings={settings || { socials: {} }} refresh={fetchData} />}
+        {/* Dynamic Viewport */}
+        <main className="flex-1 p-8 md:p-12 max-w-[1500px] w-full mx-auto">
+          <div className="mb-12">
+             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-900 pb-10">
+                <div>
+                  <h2 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight uppercase">
+                    {navItems.find(n => n.tab === activeTab)?.label || activeTab}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-3 px-5 py-2 bg-slate-50 dark:bg-slate-900 rounded-full text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] border border-slate-100 dark:border-slate-800">
+                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                   Active
+                </div>
+             </div>
+          </div>
+
+          <div className="transition-all duration-300">
+            {activeTab === "dashboard" && <DashboardView stats={stats} latestContacts={contacts} />}
+            {activeTab === "messages" && <MessagesView contacts={contacts} />}
+            {activeTab === "careers" && <CareersView careers={careers} />}
+            {activeTab === "services" && <ServicesView services={services} refresh={fetchData} />}
+            {activeTab === "clients" && <ClientsView clients={clients} refresh={fetchData} />}
+            {activeTab === "testimonials" && <TestimonialsView testimonials={testimonials} refresh={fetchData} />}
+            {activeTab === "blogs" && <BlogsView blogs={blogs} refresh={fetchData} />}
+            {activeTab === "banners" && <BannersView />}
+            {activeTab === "settings" && <SettingsView settings={settings || { socials: {} } as Settings} refresh={fetchData} />}
+          </div>
         </main>
       </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(148, 163, 184, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(148, 163, 184, 0.3);
+        }
+      `}</style>
     </div>
   );
 }

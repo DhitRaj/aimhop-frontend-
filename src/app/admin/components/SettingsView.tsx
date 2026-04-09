@@ -12,23 +12,31 @@ import {
   Save,
   Upload,
   Check,
-  AlertCircle,
-  Info
+  Shield,
+  FileText,
+  ChevronRight,
+  Database,
+  Loader2,
+  Plus,
+  ArrowRight,
+  Monitor,
+  Activity,
+  Briefcase
 } from "lucide-react";
 import { settingsAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
+import { Settings } from "../types";
 
-export function SettingsView({ settings: initialSettings, refresh }: { settings: any, refresh: () => void }) {
-  // Safe initialization with default text fallback
+export function SettingsView({ settings: initialSettings, refresh }: { settings: Settings, refresh: () => void }) {
   const getDefaultFeature = (idx: number) => ({
-    title: idx === 1 ? 'Experienced Staff' : idx === 2 ? 'Top - Tier Quality' : 'Affordable',
+    title: idx === 1 ? 'Experienced Staff' : idx === 2 ? 'Top-Tier Quality' : 'Affordable',
     desc: idx === 1 ? 'We have experienced professionals who can easily understand our clients requirements.' :
           idx === 2 ? 'Our no compromise approach to quality ensures that our solutions are user friendly forever.' :
           'We provide cost-effective solutions without compromising on the security standards.'
   });
 
-  const [settings, setSettings] = useState(() => {
-    const s = initialSettings || {};
+  const [settings, setSettings] = useState<Settings>(() => {
+    const s = initialSettings || {} as Settings;
     return {
       ...s,
       feature1Title: s.feature1Title || getDefaultFeature(1).title,
@@ -47,18 +55,13 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
-  const [heroImagePreview, setHeroImagePreview] = useState<string | null>(null);
   const [directorImageFile, setDirectorImageFile] = useState<File | null>(null);
-  const [directorImagePreview, setDirectorImagePreview] = useState<string | null>(null);
-  const [brochureFile, setBrochureFile] = useState<File | null>(null);
   const [featureFiles, setFeatureFiles] = useState<{ [key: string]: File | null }>({
     feature1: null,
     feature2: null,
     feature3: null,
   });
 
-
-  // Keep state in sync with parent updates (from DB)
   useEffect(() => {
     if (initialSettings) {
       setSettings((prev: any) => ({
@@ -84,7 +87,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
       Object.keys(settings).forEach(key => {
         if (key === 'socials') {
           formData.append('socials', JSON.stringify(settings.socials || {}));
-        } else if (!['_id', '__v', 'createdAt', 'updatedAt', 'logo', 'favicon', 'feature1Icon', 'feature2Icon', 'feature3Icon'].includes(key)) {
+        } else if (!['_id', '__v', 'createdAt', 'updatedAt', 'logo', 'favicon', 'feature1Icon', 'feature2Icon', 'feature3Icon', 'heroImage', 'directorImage'].includes(key)) {
           const val = settings[key];
           formData.append(key, val === undefined || val === null ? '' : String(val));
         }
@@ -94,7 +97,6 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
       if (faviconFile) formData.append('favicon', faviconFile);
       if (heroImageFile) formData.append('heroImage', heroImageFile);
       if (directorImageFile) formData.append('directorImage', directorImageFile);
-      if (brochureFile) formData.append('brochure', brochureFile);
       if (featureFiles.feature1) formData.append('feature1Icon', featureFiles.feature1);
       if (featureFiles.feature2) formData.append('feature2Icon', featureFiles.feature2);
       if (featureFiles.feature3) formData.append('feature3Icon', featureFiles.feature3);
@@ -105,281 +107,297 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
         setLogoFile(null);
         setFaviconFile(null);
         setHeroImageFile(null);
-        setHeroImagePreview(null);
         setDirectorImageFile(null);
-        setDirectorImagePreview(null);
         setFeatureFiles({ feature1: null, feature2: null, feature3: null });
-        refresh(); // Refresh parent data
-        alert("Success! Site configuration updated.");
-      } else {
-        alert("Backend Error: " + error);
+        refresh();
       }
     } catch (err: any) {
-      alert("Network Error: " + err.message);
+      console.error(err);
     } finally {
       setSaving(false);
     }
   };
 
-  const inputClass = "w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-3.5 text-sm font-bold outline-none focus:ring-2 focus:ring-sky-600/10 focus:border-sky-600/30 transition-all text-slate-900 dark:text-white placeholder:text-slate-400";
-  const labelClass = "text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 block ml-1";
-
   const navItems = [
-    { id: "general", label: "General", icon: SettingsIcon },
-    { id: "branding", label: "Branding", icon: Layout },
-    { id: "homepage", label: "Homepage Features", icon: Globe },
-    { id: "director", label: "Director Details", icon: User },
-    { id: "stats", label: "Company Stats", icon: BarChart3 },
-    { id: "social", label: "Social Linkage", icon: Share2 },
-    { id: "ctas", label: "CTAs & Buttons", icon: SettingsIcon }, 
+    { id: "general", label: "General Info", icon: Database, desc: "Basic website info" },
+    { id: "branding", label: "Logo & Branding", icon: Shield, desc: "Logos & website icons" },
+    { id: "homepage", label: "Home Content", icon: Monitor, desc: "Sections on the homepage" },
+    { id: "director", label: "Director Info", icon: User, desc: "Message & profile" },
+    { id: "stats", label: "Stats Counters", icon: Activity, desc: "Numbers & achievements" },
+    { id: "social", label: "Social Media", icon: Share2, desc: "Links to social platforms" },
+    { id: "ctas", label: "Feature Toggles", icon: SettingsIcon, desc: "Turn features on/off" }, 
   ];
 
-  return (
-    <div className="animate-in fade-in duration-500">
-      <div className="mb-8 pl-1">
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">System Settings</h1>
-        <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-wide italic">Securely manage your global platform assets and core content</p>
-      </div>
+  const inputClass = "w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-300";
+  const labelClass = "text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block";
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start relative">
-        <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-28 z-20">
-           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveSubTab(item.id)}
-                  className={`w-full flex items-center justify-between p-4 rounded-2xl text-xs font-bold transition-all ${
-                    activeSubTab === item.id
-                      ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl"
-                      : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/60"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                     <item.icon size={16} />
-                     <span className="uppercase tracking-widest">{item.label}</span>
-                  </div>
-                </button>
-              ))}
-           </div>
+  return (
+    <div className="space-y-8 h-full text-left">
+      <div className="grid lg:grid-cols-[300px_1fr] gap-0 h-[calc(100vh-140px)] bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+        
+        {/* Navigation Sidebar */}
+        <aside className="border-r border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col h-full">
+          <div className="p-8 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+             <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Settings Panel</h2>
+             <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-2">Manage everything</p>
+          </div>
+          <div className="flex-1 overflow-y-auto p-6 space-y-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSubTab(item.id)}
+                className={`w-full flex flex-col p-4 rounded-xl text-left transition-all relative group ${
+                  activeSubTab === item.id
+                    ? "bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800"
+                    : "hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-slate-400 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-3 w-full">
+                  <item.icon size={16} className={activeSubTab === item.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"} />
+                  <span className={`text-[10px] font-bold uppercase tracking-widest ${activeSubTab === item.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-200"}`}>{item.label}</span>
+                  {activeSubTab === item.id && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+             <button 
+               type="submit"
+               form="settings-form"
+               disabled={saving}
+               className="w-full bg-indigo-600 text-white h-12 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-indigo-500 transition-all disabled:opacity-50 shadow-lg shadow-indigo-500/20"
+             >
+               {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+               {saving ? 'Saving...' : 'Save Settings'}
+             </button>
+          </div>
         </aside>
 
-        <form onSubmit={handleSave} className="flex-1 overflow-hidden">
-           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[75vh]">
-              <div className="flex-1 overflow-y-auto p-8 md:p-10 custom-scrollbar scroll-smooth">
-                {/* --- GENERAL --- */}
-                {activeSubTab === "general" && (
-                  <div className="space-y-8 animate-in fade-in duration-300">
-                    <div className="border-b border-slate-100 dark:border-slate-800 pb-4"><h3 className="text-lg font-black uppercase text-slate-900 dark:text-white leading-none">General Identity</h3></div>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div><label className={labelClass}>Site Name</label><input type="text" value={settings?.siteName || ''} onChange={e => setSettings({...settings, siteName: e.target.value})} className={inputClass} /></div>
-                      <div><label className={labelClass}>Admin Email</label><input type="email" value={settings?.contactEmail || ''} onChange={e => setSettings({...settings, contactEmail: e.target.value})} className={inputClass} /></div>
-                    </div>
-                    <div><label className={labelClass}>Official Address</label><textarea rows={3} value={settings?.address || ''} onChange={e => setSettings({...settings, address: e.target.value})} className={inputClass + " resize-none"} /></div>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div><label className={labelClass}>Primary Phone</label><input type="text" value={settings?.contactPhone || ''} onChange={e => setSettings({...settings, contactPhone: e.target.value})} className={inputClass} /></div>
-                      <div><label className={labelClass}>Secondary Phone</label><input type="text" value={settings?.contactPhone2 || ''} onChange={e => setSettings({...settings, contactPhone2: e.target.value})} className={inputClass} /></div>
+        {/* Configuration Interface */}
+        <form id="settings-form" onSubmit={handleSave} className="h-full overflow-y-auto bg-white dark:bg-slate-900">
+          <div className="p-10 lg:p-14 max-w-4xl mx-auto space-y-14">
+            {activeSubTab === "general" && (
+              <div className="space-y-10 animate-in fade-in duration-300">
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50">
+                   <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">General Information</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Manage basic website details</p>
+                </div>
+                <div className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-1">
+                    <label className={labelClass}>Website Name</label>
+                    <input type="text" value={settings?.siteName || ''} onChange={e => setSettings({...settings, siteName: e.target.value})} className={inputClass} placeholder="Enter website name..." />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={labelClass}>Contact Email</label>
+                    <input type="email" value={settings?.contactEmail || ''} onChange={e => setSettings({...settings, contactEmail: e.target.value})} className={inputClass} placeholder="contact@example.com" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className={labelClass}>Office Address</label>
+                  <textarea rows={3} value={settings?.address || ''} onChange={e => setSettings({...settings, address: e.target.value})} className={inputClass + " resize-none font-medium italic"} placeholder="Enter office address..." />
+                </div>
+                <div className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-1">
+                    <label className={labelClass}>Primary Phone</label>
+                    <input type="text" value={settings?.contactPhone || ''} onChange={e => setSettings({...settings, contactPhone: e.target.value})} className={inputClass} placeholder="+91.000.000.0000" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={labelClass}>Secondary Phone</label>
+                    <input type="text" value={settings?.contactPhone2 || ''} onChange={e => setSettings({...settings, contactPhone2: e.target.value})} className={inputClass} placeholder="+91.000.000.0000" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeSubTab === "branding" && (
+              <div className="space-y-10 animate-in fade-in duration-300">
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50">
+                   <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Logo & Branding</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Logos and website icons</p>
+                </div>
+                <div className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <label className={labelClass}>Main Website Logo</label>
+                    <div className="aspect-[2/1] bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-dashed border-slate-200/50 dark:border-slate-800 flex flex-col items-center justify-center p-8 relative group hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-colors">
+                      {logoFile ? <img src={URL.createObjectURL(logoFile)} className="max-h-full object-contain" /> :
+                       settings?.logo ? <img src={getMediaUrl(settings.logo)} className="max-h-full object-contain" /> : 
+                       <ImageIcon size={32} className="text-slate-300 dark:text-slate-700" />}
+                      <input type="file" onChange={e => setLogoFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                      <div className="absolute bottom-4 right-4 text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] italic group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Edit Logo</div>
                     </div>
                   </div>
-                )}
+                  <div className="space-y-4">
+                    <label className={labelClass}>Favicon (Browser Icon)</label>
+                    <div className="aspect-[2/1] bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-dashed border-slate-200/50 dark:border-slate-800 flex flex-col items-center justify-center p-8 relative group hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-colors">
+                      {faviconFile ? <Check size={32} className="text-emerald-500" /> : 
+                       settings?.favicon ? <img src={getMediaUrl(settings.favicon)} className="w-12 h-12 object-contain" /> : 
+                       <ImageIcon size={32} className="text-slate-300 dark:text-slate-700" />}
+                      <input type="file" onChange={e => setFaviconFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                      <div className="absolute bottom-4 right-4 text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] italic group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Edit Icon</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-                {/* --- BRANDING --- */}
-                {activeSubTab === "branding" && (
-                  <div className="space-y-8 animate-in fade-in duration-300">
-                    <div className="border-b border-slate-100 dark:border-slate-800 pb-4"><h3 className="text-lg font-black uppercase text-slate-900 dark:text-white leading-none">Global Branding</h3></div>
+            {activeSubTab === "homepage" && (
+              <div className="space-y-12 animate-in fade-in duration-300">
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50">
+                   <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Homepage Features</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Manage the top 3 highlights on home page</p>
+                </div>
+                <div className="space-y-8">
+                  {['feature1', 'feature2', 'feature3'].map((f, i) => (
+                    <div key={f} className="flex flex-col md:flex-row gap-10 p-8 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                      <div className="w-24 h-24 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center shrink-0 relative shadow-sm">
+                        {featureFiles[f] ? <img src={URL.createObjectURL(featureFiles[f]!)} className="w-full h-full object-contain p-3" /> :
+                         settings?.[`${f}Icon`] ? <img src={getMediaUrl(settings[`${f}Icon`])} className="w-full h-full object-contain p-3" /> :
+                         <ImageIcon className="text-slate-200 dark:text-slate-700" size={32} />}
+                        <label className="absolute -bottom-2 -right-2 cursor-pointer bg-indigo-600 text-white p-2 rounded-lg shadow-lg hover:bg-indigo-500 transition-colors">
+                          <Plus size={14} />
+                          <input type="file" onChange={e => setFeatureFiles({...featureFiles, [f]: e.target.files?.[0] || null})} className="hidden" />
+                        </label>
+                      </div>
+                      <div className="flex-1 grid gap-6">
+                        <div className="space-y-1">
+                          <label className={labelClass}>Feature {i+1} Title</label>
+                          <input placeholder={getDefaultFeature(i+1).title} value={settings?.[`${f}Title`] || ''} onChange={e => setSettings({...settings, [`${f}Title`]: e.target.value})} className={inputClass} />
+                        </div>
+                        <div className="space-y-1">
+                          <label className={labelClass}>Feature {i+1} Description</label>
+                          <input placeholder={getDefaultFeature(i+1).desc} value={settings?.[`${f}Desc`] || ''} onChange={e => setSettings({...settings, [`${f}Desc`]: e.target.value})} className={inputClass + " font-medium italic"} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeSubTab === "director" && (
+              <div className="space-y-12 animate-in fade-in duration-300">
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50">
+                   <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Director's Profile</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Manage leadership message and photo</p>
+                </div>
+                <div className="grid md:grid-cols-[1fr_260px] gap-12">
+                  <div className="space-y-10">
                     <div className="grid md:grid-cols-2 gap-8">
-                        <div className="p-8 bg-slate-50 dark:bg-slate-800/40 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-6 shadow-sm">
-                            <div className="h-24 flex items-center justify-center p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 w-32">
-                               {settings?.logo ? <img src={getMediaUrl(settings.logo)} className="max-h-full object-contain" /> : <ImageIcon size={30} className="text-slate-300" />}
-                            </div>
-                            <label className="cursor-pointer bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-lg hover:scale-105 transition-all">
-                               <Upload size={14} /> Update Logo
-                               <input type="file" onChange={e => setLogoFile(e.target.files?.[0] || null)} className="hidden" />
-                            </label>
-                        </div>
-                        <div className="p-8 bg-slate-50 dark:bg-slate-800/40 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-6 shadow-sm">
-                            <div className="h-24 flex items-center justify-center p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 w-32">
-                              {faviconFile ? <p className="text-[10px] font-black text-sky-600 uppercase text-center anim-pulse">Ready</p> : 
-                               settings?.favicon ? <img src={getMediaUrl(settings.favicon)} className="max-h-full object-contain" /> : <ImageIcon size={30} className="text-slate-300" />}
-                            </div>
-                            <label className="cursor-pointer bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-lg hover:scale-105 transition-all">
-                               <Upload size={14} /> Update Favicon
-                               <input type="file" onChange={e => setFaviconFile(e.target.files?.[0] || null)} className="hidden" />
-                            </label>
-                        </div>
+                      <div className="space-y-1">
+                        <label className={labelClass}>Director Name</label>
+                        <input type="text" value={settings?.directorName || ''} onChange={e => setSettings({...settings, directorName: e.target.value})} className={inputClass} placeholder="Enter name..." />
+                      </div>
+                      <div className="space-y-1">
+                        <label className={labelClass}>Director Position</label>
+                        <input type="text" value={settings?.directorRole || ''} onChange={e => setSettings({...settings, directorRole: e.target.value})} className={inputClass} placeholder="e.g. Managing Director" />
+                      </div>
                     </div>
-                    {/* Brochure Upload */}
-                    <div className="pt-6">
-                        <label className={labelClass}>Company Portfolio (PDF)</label>
-                        <div className="flex flex-col sm:flex-row items-center gap-6 p-8 bg-slate-50 dark:bg-slate-800/40 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:bg-slate-100/50 dark:hover:bg-slate-800/60">
-                           <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-center">
-                              <Info size={30} className={brochureFile ? "text-sky-600" : "text-slate-300"} />
-                           </div>
-                           <div className="flex-1 space-y-2">
-                              <p className="text-xs text-slate-400 font-medium">Upload company brochure / profile in PDF format. Current: <span className="text-slate-900 dark:text-white font-bold">{settings?.brochureUrl || 'Default'}</span></p>
-                              <label className="cursor-pointer bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-3 shadow-lg hover:scale-105 transition-all w-fit">
-                                 <Upload size={16} /> {brochureFile ? "Change PDF" : "Upload Brochure PDF"}
-                                 <input type="file" accept="application/pdf" onChange={e => setBrochureFile(e.target.files?.[0] || null)} className="hidden" />
-                              </label>
-                              {brochureFile && <p className="text-[10px] font-black text-sky-600 uppercase tracking-widest flex items-center gap-1"><Check size={12}/> {brochureFile.name} — Ready to Sync</p>}
-                           </div>
-                        </div>
+                    <div className="space-y-1">
+                      <label className={labelClass}>Director's Message</label>
+                      <textarea rows={8} value={settings?.directorMessage || ''} onChange={e => setSettings({...settings, directorMessage: e.target.value})} className={inputClass + " leading-relaxed resize-none font-medium text-sm"} placeholder="Enter official director statement..." />
                     </div>
                   </div>
-                )}
-
-
-                {/* --- FEATURES (ROBUST DATA) --- */}
-                {activeSubTab === "homepage" && (
-                  <div className="space-y-8 animate-in fade-in duration-300">
-                    <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-                        <div className="flex items-center gap-3">
-                           <h3 className="text-lg font-black uppercase text-slate-900 dark:text-white leading-none">Homepage Features</h3>
-                           <div className="group relative cursor-help"><Info size={14} className="text-slate-300" /><div className="absolute left-6 top-0 w-48 p-2 bg-slate-900 text-white text-[9px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">Empty fields will show default website text.</div></div>
-                        </div>
-                    </div>
-
-                    <div className="grid gap-6">
-                        {['feature1', 'feature2', 'feature3'].map((f, i) => (
-                          <div key={f} className="p-8 bg-slate-50/50 dark:bg-slate-800/10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row gap-8 items-center shadow-sm">
-                             <div className="w-24 h-24 bg-white dark:bg-slate-900 rounded-[1.5rem] flex items-center justify-center p-3 border border-slate-100 dark:border-slate-800 shadow-sm shrink-0 overflow-hidden">
-                                {featureFiles[f] ? <img src={URL.createObjectURL(featureFiles[f]!)} className="max-h-full object-contain" /> :
-                                 settings?.[`${f}Icon`] ? <img src={getMediaUrl(settings[`${f}Icon`])} className="max-h-full object-contain" /> :
-                                 <ImageIcon className="text-slate-200" size={30} />}
-                             </div>
-                             <div className="flex-1 space-y-4 w-full">
-                                <div className="flex items-center justify-between">
-                                   <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest bg-sky-50 dark:bg-sky-900/40 px-3 py-1 rounded-md">Feature {i+1}</span>
-                                   <label className="cursor-pointer bg-sky-600 text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-sky-700 shadow-lg active:scale-95 transition-all">
-                                      <Upload size={12} /> Custom Icon
-                                      <input type="file" onChange={e => setFeatureFiles({...featureFiles, [f]: e.target.files?.[0] || null})} className="hidden" />
-                                   </label>
-                                </div>
-                                <div className="grid gap-3">
-                                   <input placeholder={getDefaultFeature(i+1).title} value={settings?.[`${f}Title`] || ''} onChange={e => setSettings({...settings, [`${f}Title`]: e.target.value})} className={inputClass} />
-                                   <input placeholder={getDefaultFeature(i+1).desc} value={settings?.[`${f}Desc`] || ''} onChange={e => setSettings({...settings, [`${f}Desc`]: e.target.value})} className={inputClass + " text-xs"} />
-                                </div>
-                             </div>
-                          </div>
-                        ))}
+                  <div className="space-y-4">
+                    <label className={labelClass}>Director's Photo</label>
+                    <div className="aspect-[3/4] bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-dashed border-slate-200/50 dark:border-slate-800 overflow-hidden relative group hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-colors flex items-center justify-center">
+                      {directorImageFile ? (
+                        <img src={URL.createObjectURL(directorImageFile)} className="w-full h-full object-cover" />
+                      ) : settings?.directorImage ? (
+                        <img src={getMediaUrl(settings.directorImage)} className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={48} className="text-slate-200 dark:text-slate-700" />
+                      )}
+                      <input type="file" onChange={e => setDirectorImageFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                      <div className="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all p-4 text-center">
+                         <p className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Update Photo</p>
+                      </div>
                     </div>
                   </div>
-                )}
-
-                {/* --- DIRECTOR --- */}
-                {activeSubTab === "director" && (
-                    <div className="space-y-8 animate-in fade-in duration-300">
-                        <div className="border-b border-slate-100 dark:border-slate-800 pb-4"><h3 className="text-lg font-black uppercase text-slate-900 dark:text-white leading-none">Director Profile</h3></div>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div><label className={labelClass}>Director Name</label><input type="text" value={settings?.directorName || ''} onChange={e => setSettings({...settings, directorName: e.target.value})} className={inputClass} /></div>
-                            <div><label className={labelClass}>Designation</label><input type="text" value={settings?.directorRole || ''} onChange={e => setSettings({...settings, directorRole: e.target.value})} className={inputClass} /></div>
-                        </div>
-                        <div><label className={labelClass}>Public Message</label><textarea rows={6} value={settings?.directorMessage || ''} onChange={e => setSettings({...settings, directorMessage: e.target.value})} className={inputClass + " leading-relaxed resize-none"} /></div>
-                        
-                        {/* Director Photo Upload */}
-                        <div>
-                          <label className={labelClass}>Director Photo (PNG / JPG / WebP)</label>
-                          <div className="flex flex-col sm:flex-row items-start gap-6 p-6 bg-slate-50 dark:bg-slate-800/40 rounded-[2rem] border border-slate-100 dark:border-slate-800">
-                             <div className="w-28 h-28 bg-white dark:bg-slate-900 rounded-full border-2 border-slate-100 dark:border-slate-800 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
-                                {directorImagePreview ? (
-                                  <img src={directorImagePreview} className="w-full h-full object-cover" alt="Director Preview" />
-                                ) : settings?.directorImage ? (
-                                  <img src={getMediaUrl(settings.directorImage)} className="w-full h-full object-cover" alt="Director" />
-                                ) : (
-                                  <ImageIcon size={26} className="text-slate-300" />
-                                )}
-                             </div>
-                            <div className="flex flex-col gap-3 flex-1">
-                              <p className="text-xs text-slate-400 font-medium">Upload director's professional photo (PNG, JPG, WebP). Square image recommended (400×400px).</p>
-                              <label className="cursor-pointer bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-7 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-lg hover:scale-105 transition-all w-fit">
-                                <Upload size={14} /> Upload Photo
-                                <input type="file" accept="image/png,image/jpeg,image/webp,image/jpg" className="hidden" onChange={e => {
-                                  const file = e.target.files?.[0] || null;
-                                  setDirectorImageFile(file);
-                                  setDirectorImagePreview(file ? URL.createObjectURL(file) : null);
-                                }} />
-                              </label>
-                              {directorImageFile && <p className="text-[10px] font-black text-sky-600 uppercase tracking-widest">✓ {directorImageFile.name} — Ready to save</p>}
-                            </div>
-                          </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* --- STATS --- */}
-                {activeSubTab === "stats" && (
-                    <div className="space-y-8 animate-in fade-in duration-300">
-                        <div className="border-b border-slate-100 dark:border-slate-800 pb-4"><h3 className="text-lg font-black uppercase text-slate-900 dark:text-white leading-none">Key Indicators</h3></div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {[
-                              {key: 'statsClients', label: 'Clients'}, 
-                              {key: 'statsProjects', label: 'Projects'}, 
-                              {key: 'statsAwards', label: 'Awards'}, 
-                              {key: 'statsExperience', label: 'Years'}
-                            ].map(s => (
-                                <div key={s.key}>
-                                   <label className={labelClass}>{s.label}</label>
-                                   <input value={settings?.[s.key] || ''} onChange={e => setSettings({...settings, [s.key]: e.target.value})} className={inputClass + " text-center tracking-widest"} />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                    {/* --- SOCIAL --- */}
-                    {activeSubTab === "social" && (
-                        <div className="space-y-8 animate-in fade-in duration-300">
-                            <div className="border-b border-slate-100 dark:border-slate-800 pb-4"><h3 className="text-lg font-black uppercase text-slate-900 dark:text-white leading-none">Official Channels</h3></div>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                {['facebook', 'twitter', 'linkedin', 'instagram'].map(s => (
-                                    <div key={s}>
-                                       <label className={labelClass}>{s}</label>
-                                       <input value={settings?.socials?.[s] || ''} onChange={e => setSettings({...settings, socials: {...(settings.socials || {}), [s]: e.target.value}})} className={inputClass} />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* --- CTAs & BUTTONS --- */}
-                    {activeSubTab === "ctas" && (
-                        <div className="space-y-8 animate-in fade-in duration-300">
-                            <div className="border-b border-slate-100 dark:border-slate-800 pb-4"><h3 className="text-lg font-black uppercase text-slate-900 dark:text-white leading-none">Interactive CTAs</h3></div>
-                            <div className="grid gap-6">
-                                {[
-                                    { key: 'ctaJobEnabled', label: 'Enable "Apply for Job" Button', desc: 'Control visibility of recruitment buttons for candidates.' },
-                                    { key: 'ctaBrochureEnabled', label: 'Enable "Download Brochure" CTA', desc: 'Allow B2B clients to access digital marketing assets.' },
-                                    { key: 'ctaSafetyAuditEnabled', label: 'Enable "Free Safety Audit" Button', desc: 'Promote professional onsite security assessments.' }
-                                ].map(cta => (
-                                    <div key={cta.key} className="p-6 bg-slate-50 dark:bg-slate-800/40 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
-                                        <div className="flex-1 pr-6">
-                                            <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{cta.label}</p>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{cta.desc}</p>
-                                        </div>
-                                        <button 
-                                            type="button"
-                                            onClick={() => setSettings({...settings, [cta.key]: settings[cta.key] === false})}
-                                            className={`w-14 h-7 rounded-full relative transition-all duration-300 ${settings[cta.key] !== false ? 'bg-sky-600 shadow-lg shadow-sky-600/30' : 'bg-slate-200 dark:bg-slate-700'}`}
-                                        >
-                                            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-sm ${settings[cta.key] !== false ? 'left-8' : 'left-1'}`} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                </div>
               </div>
+            )}
 
-              <div className="p-8 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50/10 dark:bg-slate-950/20 backdrop-blur-md rounded-b-[2.5rem]">
-                 <button 
-                   disabled={saving} 
-                   type="submit" 
-                   className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-12 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-sky-600/10 disabled:opacity-50 flex items-center gap-3"
-                 >
-                    <Save size={18} />
-                    {saving ? "Publishing..." : "Sync Website Updates"}
-                 </button>
+            {activeSubTab === "stats" && (
+              <div className="space-y-12 animate-in fade-in duration-300">
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50">
+                   <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Counters & Stats</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Display success numbers on the website</p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {[
+                    {key: 'statsClients', label: 'Happy Clients', icon: User}, 
+                    {key: 'statsProjects', label: 'Finished Projects', icon: Globe}, 
+                    {key: 'statsAwards', label: 'Won Awards', icon: Shield}, 
+                    {key: 'statsExperience', label: 'Years of Exp.', icon: BarChart3}
+                  ].map(s => (
+                    <div key={s.key} className="p-8 bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-6 text-center hover:border-indigo-500/50 transition-colors group">
+                      <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 mx-auto border border-slate-200/50 dark:border-slate-800 shadow-sm transition-colors">
+                        <s.icon size={20} />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400 block">{s.label}</label>
+                        <input value={settings?.[s.key] || ''} onChange={e => setSettings({...settings, [s.key]: e.target.value})} className="w-full bg-transparent text-3xl font-bold text-slate-900 dark:text-white outline-none placeholder:text-slate-200 dark:placeholder:text-slate-800 text-center uppercase tracking-tighter group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" placeholder="0" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-           </div>
+            )}
+
+            {activeSubTab === "social" && (
+              <div className="space-y-12 animate-in fade-in duration-300">
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50">
+                   <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Social Media Links</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Links to your official social pages</p>
+                </div>
+                <div className="grid md:grid-cols-2 gap-10">
+                  {['facebook', 'twitter', 'linkedin', 'instagram'].map(s => (
+                    <div key={s} className="space-y-2">
+                      <label className={labelClass}>{s} profile Link</label>
+                      <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                          <ArrowRight size={16} />
+                        </div>
+                        <input value={settings?.socials?.[s] || ''} onChange={e => setSettings({...settings, socials: {...(settings.socials || {}), [s]: e.target.value}})} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl pl-12 pr-4 py-3.5 text-xs font-bold text-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-700" placeholder={`https://${s}.com/yourpage`} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeSubTab === "ctas" && (
+              <div className="space-y-12 animate-in fade-in duration-300">
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50">
+                   <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Feature Toggles</h3>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Turn on or off specific website features</p>
+                </div>
+                <div className="grid gap-6">
+                  {[
+                    { key: 'ctaJobEnabled', label: 'Enable Jobs / Careers', desc: 'Show the "Apply Now" buttons on the website.' },
+                    { key: 'ctaBrochureEnabled', label: 'Enable Brochure Download', desc: 'Show the "Download Brochure" button on the website.' },
+                    { key: 'ctaSafetyAuditEnabled', label: 'Enable Safety Audits', desc: 'Show safety audit request forms on the website.' }
+                  ].map(cta => (
+                    <div key={cta.key} className="flex flex-col md:flex-row md:items-center justify-between p-8 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800 gap-6">
+                      <div className="flex-1">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em] mb-2">{cta.label}</h4>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">{cta.desc}</p>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => setSettings({...settings, [cta.key]: settings[cta.key] === false})}
+                        className={`w-14 h-8 rounded-full relative transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-950 focus:ring-indigo-500 ${settings[cta.key] !== false ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-800'}`}
+                      >
+                        <div className={`absolute top-1 w-6 h-6 rounded-full transition-all bg-white shadow-sm ${settings[cta.key] !== false ? 'left-7' : 'left-1'}`} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </form>
       </div>
     </div>

@@ -6,13 +6,15 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Shield, Star, Building2, Truck, Server, Landmark, Hospital, Briefcase, Zap, CheckCircle2, Send, MessageSquare, User } from "lucide-react";
 import { LucideIcon, Shield as ShieldIcon, Building2 as Building2Icon } from "lucide-react";
 import { useState, useEffect } from "react";
-import { clientAPI, testimonialAPI, settingsAPI } from "@/lib/api";
+import { clientAPI, testimonialAPI, settingsAPI, bannerAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
+import { PageHero } from "@/components/PageHero";
 
 export default function ClientsPage() {
    const [clients, setClients] = useState<any[]>([]);
    const [testimonials, setTestimonials] = useState<any[]>([]);
    const [settings, setSettings] = useState<any>(null);
+   const [banner, setBanner] = useState<any>(null);
    // API_BASE removed in favor of getMediaUrl utility
 
    // Form State
@@ -24,15 +26,19 @@ export default function ClientsPage() {
       Promise.all([
          clientAPI.getAll(),
          testimonialAPI.getAll(),
-         settingsAPI.get()
-      ]).then(([cl, ts, st]) => {
+         settingsAPI.get(),
+         bannerAPI.getAll(true, 'Clients')
+      ]).then(([cl, ts, st, bn]) => {
          if (cl.data) setClients(cl.data);
          if (ts.data) setTestimonials(ts.data);
          if (st.data) setSettings(st.data);
+         if (bn.data && bn.data.length > 0) setBanner(bn.data[0]);
       });
    }, []);
 
-   const heroImg = getMediaUrl(settings?.heroImage);
+   const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
+   const heroTitle = banner?.title || "Our Clients";
+   const heroSubtitle = banner?.subtitle || "1200+ Happy Clients Across India";
 
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -60,19 +66,12 @@ export default function ClientsPage() {
       <div className="bg-white dark:bg-slate-950 min-h-screen">
          <Navbar />
 
-         <main className="pt-32 pb-20">
-            <section className="relative h-[320px] md:h-[400px] mb-16 bg-slate-950 rounded-b-[3rem] overflow-hidden flex items-center justify-center">
-               {heroImg && (
-                  <img src={heroImg} alt="Background" className="absolute inset-0 w-full h-full object-cover object-center opacity-70" />
-               )}
-               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-               <div className="relative z-10 text-center space-y-3 px-6">
-                  <h1 className="text-3xl md:text-6xl font-black tracking-tight text-white uppercase leading-tight drop-shadow-2xl">
-                     Companies Who<br /><span className="text-sky-500">Trust Us</span>
-                  </h1>
-                  <p className="text-sky-400 font-bold uppercase tracking-widest text-sm">1200+ Happy Clients Across India</p>
-               </div>
-            </section>
+         <main className="pb-20">
+            <PageHero
+               title={heroTitle}
+               subtitle={heroSubtitle}
+               backgroundImage={heroImg}
+            />
 
             <div className="max-w-7xl mx-auto px-6">
                <Breadcrumb title="Our Clients" />
@@ -214,7 +213,7 @@ export default function ClientsPage() {
                            </div>
                         )}
 
-                        <button disabled={loading} type="submit" className="w-full bg-slate-900 dark:bg-sky-600 text-white py-6 rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-4 group">
+                        <button disabled={loading} type="submit" className="w-full bg-sky-600 hover:bg-sky-700 dark:bg-sky-600 text-white py-6 rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-4 group">
                            {loading ? 'Submitting...' : 'Submit Your Rating'}
                            <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         </button>
