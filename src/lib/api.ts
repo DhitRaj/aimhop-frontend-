@@ -110,14 +110,14 @@ export const checkBackendHealth = async () => {
 export const authAPI = {
   register: async (body: { name: string; email: string; password: string; phone: string }) => {
     return apiFetch<{ token: string; user: { id: string; name: string; email: string } }>(
-      '/api/auth/register',
+      '/api/v1/auth/register',
       { method: 'POST', body: JSON.stringify(body) }
     );
   },
 
   login: async (body: { email: string; password: string }) => {
     return apiFetch<{ token: string; user: { id: string; name: string; email: string } }>(
-      '/api/auth/login',
+      '/api/v1/auth/login',
       { method: 'POST', body: JSON.stringify(body) }
     );
   },
@@ -133,15 +133,15 @@ export const contactAPI = {
     subject: string;
     message: string;
   }) => {
-    return apiFetch<{ message: string }>('/api/contact', {
+    return apiFetch<{ message: string }>('/api/v1/contact', {
       method: 'POST',
       body: JSON.stringify(body),
     });
   },
 
-  getAll: async () => apiFetch<any[]>('/api/contact'),
+  getAll: async () => apiFetch<any[]>('/api/v1/contact'),
 
-  delete: (id: string) => apiFetch<any>(`/api/contact/${id}`, {
+  delete: (id: string) => apiFetch<any>(`/api/v1/contact/${id}`, {
     method: 'DELETE',
   }),
 };
@@ -150,7 +150,7 @@ export const contactAPI = {
  
 export const careerAPI = {
   submit: (formData: FormData) => {
-    return fetch(`/api/careers`, {
+    return fetch(`/api/v1/careers`, {
       method: 'POST',
       body: formData,
     }).then(async (res) => {
@@ -160,9 +160,9 @@ export const careerAPI = {
     });
   },
 
-  getAll: () => apiFetch<any[]>('/api/careers'),
+  getAll: () => apiFetch<any[]>('/api/v1/careers'),
 
-  delete: (id: string) => apiFetch<any>(`/api/careers/${id}`, {
+  delete: (id: string) => apiFetch<any>(`/api/v1/careers/${id}`, {
     method: 'DELETE',
   }),
 };
@@ -170,9 +170,9 @@ export const careerAPI = {
 // ==================== Service API ====================
 
 export const serviceAPI = {
-  getAll: () => apiFetch<any[]>('/api/services'),
+  getAll: () => apiFetch<any[]>('/api/v1/services'),
   create: (formData: FormData) => 
-    fetch(`/api/services`, {
+    fetch(`/api/v1/services`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
@@ -182,7 +182,7 @@ export const serviceAPI = {
       return res.ok ? { data } : { error: data.message || `Error ${res.status}` };
     }),
   update: (id: string, formData: FormData) =>
-    fetch(`/api/services/${id}`, {
+    fetch(`/api/v1/services/${id}`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
@@ -191,7 +191,7 @@ export const serviceAPI = {
       const data = isJson ? await res.json() : { message: 'Unexpected response from server' };
       return res.ok ? { data } : { error: data.message || `Error ${res.status}` };
     }),
-  delete: (id: string) => apiFetch<any>(`/api/services/${id}`, { 
+  delete: (id: string) => apiFetch<any>(`/api/v1/services/${id}`, { 
     method: 'DELETE',
   }),
 };
@@ -199,9 +199,9 @@ export const serviceAPI = {
 // ==================== Settings API ====================
 
 export const settingsAPI = {
-  get: () => apiFetch<any>('/api/settings'),
+  get: () => apiFetch<any>('/api/v1/settings'),
   save: (formData: FormData) => {
-    return fetch(`/api/settings`, {
+    return fetch(`/api/v1/settings`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
@@ -220,10 +220,10 @@ export const bannerAPI = {
     if (activeOnly) params.set('activeOnly', 'true');
     if (page) params.set('page', page);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return apiFetch<any[]>(`/api/banners${query}`);
+    return apiFetch<any[]>(`/api/v1/banners${query}`);
   },
   create: (formData: FormData) => 
-    fetch(`${API_BASE_URL}/api/banners`, {
+    fetch(`${API_BASE_URL}/api/v1/banners`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
@@ -233,7 +233,7 @@ export const bannerAPI = {
       return res.ok ? { data } : { error: data.message };
     }),
   update: (id: string, formData: FormData) =>
-    fetch(`${API_BASE_URL}/api/banners/${id}`, {
+    fetch(`${API_BASE_URL}/api/v1/banners/${id}`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
@@ -242,20 +242,20 @@ export const bannerAPI = {
       const data = isJson ? await res.json() : { message: 'Unexpected response' };
       return res.ok ? { data } : { error: data.message };
     }),
-  toggleStatus: (id: string, active: boolean) => apiFetch<any>(`/api/banners/${id}/status`, {
+  toggleStatus: (id: string, active: boolean) => apiFetch<any>(`/api/v1/banners/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ active }),
   }),
-  delete: (id: string) => apiFetch<any>(`/api/banners/${id}`, { 
+  delete: (id: string) => apiFetch<any>(`/api/v1/banners/${id}`, { 
     method: 'DELETE'
   }),
 };
 
 // ==================== Client API ====================
 export const clientAPI = {
-  getAll: () => apiFetch<any[]>('/api/clients'),
+  getAll: () => apiFetch<any[]>('/api/v1/clients'),
   create: (formData: FormData) => 
-    fetch(`/api/clients`, {
+    fetch(`/api/v1/clients`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
@@ -264,37 +264,37 @@ export const clientAPI = {
       const data = isJson ? await res.json() : { message: 'Unexpected response' };
       return res.ok ? { data } : { error: data.message };
     }),
-  delete: (id: string) => apiFetch<any>(`/api/clients/${id}`, { 
+  delete: (id: string) => apiFetch<any>(`/api/v1/clients/${id}`, { 
     method: 'DELETE'
   }),
 };
 
 // ==================== Testimonial API ====================
 export const testimonialAPI = {
-  getAll: (status?: string) => apiFetch<any[]>(`/api/testimonials${status ? `?status=${status}` : ''}`),
-  submit: (body: any) => apiFetch<any>('/api/testimonials/submit', {
+  getAll: (status?: string) => apiFetch<any[]>(`/api/v1/testimonials${status ? `?status=${status}` : ''}`),
+  submit: (body: any) => apiFetch<any>('/api/v1/testimonials/submit', {
     method: 'POST',
     body: JSON.stringify(body),
   }),
-  add: (body: any) => apiFetch<any>('/api/testimonials', {
+  add: (body: any) => apiFetch<any>('/api/v1/testimonials', {
     method: 'POST',
     body: JSON.stringify(body),
   }),
-  update: (id: string, body: any) => apiFetch<any>(`/api/testimonials/${id}`, {
+  update: (id: string, body: any) => apiFetch<any>(`/api/v1/testimonials/${id}`, {
     method: 'PUT',
     body: JSON.stringify(body),
   }),
-  delete: (id: string) => apiFetch<any>(`/api/testimonials/${id}`, { 
+  delete: (id: string) => apiFetch<any>(`/api/v1/testimonials/${id}`, { 
     method: 'DELETE',
   }),
 };
 
 // ==================== Blog API ====================
 export const blogAPI = {
-  getAll: () => apiFetch<any[]>('/api/blogs'),
-  getById: (id: string) => apiFetch<any>(`/api/blogs/${id}`),
+  getAll: () => apiFetch<any[]>('/api/v1/blogs'),
+  getById: (id: string) => apiFetch<any>(`/api/v1/blogs/${id}`),
   create: (formData: FormData) => {
-    return fetch(`/api/blogs`, {
+    return fetch(`/api/v1/blogs`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
@@ -305,7 +305,7 @@ export const blogAPI = {
     });
   },
   update: (id: string, formData: FormData) => {
-    return fetch(`/api/blogs/${id}`, {
+    return fetch(`/api/v1/blogs/${id}`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${getToken()}` },
       body: formData,
@@ -315,7 +315,7 @@ export const blogAPI = {
       return res.ok ? { data: data.blog || data } : { error: data.message };
     });
   },
-  delete: (id: string) => apiFetch<any>(`/api/blogs/${id}`, { 
+  delete: (id: string) => apiFetch<any>(`/api/v1/blogs/${id}`, { 
     method: 'DELETE'
   }),
 };
@@ -324,8 +324,9 @@ export const blogAPI = {
 
 export const statsAPI = {
   get: async () => {
-    return apiFetch<any>('/api/stats');
+    return apiFetch<any>('/api/v1/admin/stats');
   },
 };
+
 
 export default apiFetch;

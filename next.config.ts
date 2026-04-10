@@ -12,6 +12,7 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   images: {
+    unoptimized: process.env.NODE_ENV === "development",
     remotePatterns: [
       {
         protocol: new URL(BACKEND_URL).protocol.replace(':', '') as "http" | "https",
@@ -19,6 +20,13 @@ const nextConfig: NextConfig = {
         port: new URL(BACKEND_URL).port || undefined,
         pathname: '/uploads/**',
       },
+      {
+        protocol: new URL(BACKEND_URL).protocol.replace(':', '') as "http" | "https",
+        hostname: '127.0.0.1',
+        port: new URL(BACKEND_URL).port || undefined,
+        pathname: '/uploads/**',
+      },
+
       {
         protocol: new URL(BACKEND_URL).protocol.replace(':', '') as "http" | "https",
         hostname: backendHostname,

@@ -13,7 +13,7 @@ export async function generateViewport(): Promise<Viewport> {
   const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
   let settings: any = null;
   try {
-    const res = await fetch(`${API_URL}/api/settings`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/api/v1/settings`, { cache: 'no-store' });
     const contentType = res.headers.get('content-type');
     if (res.ok && contentType && contentType.includes('application/json')) {
       settings = await res.json();
@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
   let settings: any = null;
   try {
-    const res = await fetch(`${API_URL}/api/settings`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/api/v1/settings`, { cache: 'no-store' });
     const contentType = res.headers.get('content-type');
     if (res.ok && contentType && contentType.includes('application/json')) {
       settings = await res.json();
@@ -47,31 +47,91 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Layout metadata fetch error:", e);
   }
 
+
   const siteTitle = settings?.siteName || "AimHop Security Solutions Pvt. Ltd.";
+  const siteDescription = settings?.siteDescription || "India's leading security solutions agency. We provide highly trained security guards, electronic surveillance (CCTV), bouncers, and facility management services.";
   const faviconPath = getMediaUrl(settings?.favicon) || "/favicon.ico";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aimhop.com";
 
   return {
-    title: siteTitle,
-    description: "India's leading security solutions agency. We provide highly trained security guards, electronic surveillance (CCTV), bouncers, and facility management services.",
+    metadataBase: new URL(baseUrl),
+    title: {
+      default: siteTitle,
+      template: `%s | ${siteTitle}`,
+    },
+    description: siteDescription,
+    applicationName: "AimHop",
+    keywords: [
+      "Security Guards", 
+      "CCTV Surveillance", 
+      "Bouncers", 
+      "Facility Management", 
+      "Security Agency India", 
+      "AimHop Security",
+      "Professional Bodyguards",
+      "Event Security",
+      "Industrial Security"
+    ],
+    authors: [{ name: "AimHop Team" }],
+    creator: "AimHop Security Solutions",
+    publisher: "AimHop Security Solutions Pvt. Ltd.",
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: true,
+    },
+    alternates: {
+      canonical: "/",
+    },
     manifest: "/manifest.json",
     icons: {
-      icon: faviconPath,
+      icon: [
+        { url: faviconPath },
+        { url: faviconPath, sizes: "32x32", type: "image/png" },
+      ],
       shortcut: faviconPath,
       apple: faviconPath,
     },
     openGraph: {
       title: siteTitle,
-      description: "Reliable Protection & Facility Management Across India",
-      url: "https://aimhop.com",
+      description: siteDescription,
+      url: baseUrl,
       siteName: siteTitle,
       locale: "en_IN",
       type: "website",
+      images: [
+        {
+          url: "/og-image.jpg", // Make sure this exists or use a dynamic one
+          width: 1200,
+          height: 630,
+          alt: siteTitle,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteTitle,
+      description: siteDescription,
+      creator: "@aimhop",
+      images: ["/og-image.jpg"],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
     appleWebApp: {
       capable: true,
       statusBarStyle: "default",
       title: "AimHop",
     },
+    category: "Security Services",
   };
 }
 
@@ -85,7 +145,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="antialiased font-inter bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
         <AppThemeProvider>
           <ArtisticBackground />
