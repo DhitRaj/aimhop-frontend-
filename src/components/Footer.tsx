@@ -15,7 +15,10 @@ export function Footer() {
       try {
         const [sRes, serRes] = await Promise.all([settingsAPI.get(), serviceAPI.getAll()]);
         if (sRes.data) setSettings(sRes.data);
-        if (serRes.data) setFooterServices(serRes.data.slice(0, 5));
+        if (serRes.data) {
+          const services = Array.isArray(serRes.data) ? serRes.data : (serRes.data as any).data;
+          if (Array.isArray(services)) setFooterServices(services.slice(0, 5));
+        }
       } catch (e) {
         console.error(e);
       }
@@ -59,40 +62,44 @@ const LinkedinIcon = ({size=18}) => (
   ];
 
   return (
-    <footer className="bg-white dark:bg-slate-950 pt-16 pb-10 border-t border-slate-100 dark:border-slate-900">
-      <div className="max-w-7xl mx-auto px-6">
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-10 mb-12">
+    <footer className="bg-muted dark:bg-card border-t border-border mt-auto">
+      <div className="container-pad py-20">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-12">
           {/* Brand Column */}
-          <div className="lg:col-span-1 space-y-5">
-            <Link href="/" className="flex items-center gap-3">
+          <div className="lg:col-span-2 space-y-8">
+            <Link href="/" className="flex items-center gap-4 group">
               {settings?.logo ? (
-                <div className="w-14 h-14 flex items-center justify-center">
-                  <img 
-                    src={getMediaUrl(settings.logo)} 
-                    alt={settings.siteName || 'AimHop'} 
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+                <img 
+                  src={getMediaUrl(settings.logo)} 
+                  alt={settings.siteName || 'AimHop'} 
+                  className="w-16 h-16 object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                />
               ) : (
-                <Shield className="w-10 h-10 text-sky-600" />
+                <Shield className="w-12 h-12 text-primary" />
               )}
               <div className="flex flex-col">
-                <span className="font-black text-xl tracking-tight text-slate-900 dark:text-white uppercase leading-tight">
+                <span className="font-black text-2xl tracking-tighter uppercase leading-none">
                   {settings?.siteName ? settings.siteName.split(' ')[0] : 'Aimhop'}
                 </span>
-                <span className="text-[9px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest leading-tight">
+                <span className="text-[9px] font-bold text-primary uppercase tracking-[0.2em] leading-tight mt-1 opacity-60">
                   {settings?.siteName && settings.siteName.includes(' ') 
                     ? settings.siteName.split(' ').slice(1).join(' ') 
                     : 'Security Solutions'}
                 </span>
               </div>
             </Link>
-            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
-              AimHop Security Solutions — Started from {settings?.address?.split(',')[0] || 'Gorakhpur'}, currently providing trusted security and manpower services across India.
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-sm font-medium">
+              Elevating security standards with military precision and modern technology. Serving India's elite infrastructure since {settings?.address?.split(',')[0] || '2020'}.
             </p>
             <div className="flex items-center gap-3">
                {socialLinks.map((s, i) => (
-                 <a key={i} href={s.link} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:bg-sky-600 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest leading-tight">
+                 <a 
+                   key={i} 
+                   href={s.link} 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   className="w-11 h-11 bg-background border border-border rounded-xl flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white hover:border-primary hover:-translate-y-1 transition-all duration-300"
+                 >
                     {s.icon}
                  </a>
                ))}
@@ -100,12 +107,12 @@ const LinkedinIcon = ({size=18}) => (
           </div>
 
           {/* Services Column */}
-          <div>
-             <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 underline decoration-sky-600 decoration-2 underline-offset-8">Our Services</h5>
-             <ul className="space-y-3">
+          <div className="space-y-8">
+             <h5 className="text-[11px] font-black text-foreground uppercase tracking-[0.2em]">Services</h5>
+             <ul className="space-y-4">
                 {(footerServices.length > 0 ? footerServices : [{title: "Security Guards"}, {title: "Bodyguards"}]).map(s => (
                   <li key={s.title}>
-                    <Link href="/services" className="font-bold text-sm text-slate-600 dark:text-slate-300 hover:text-sky-600 transition-colors uppercase">
+                    <Link href="/services" className="text-sm text-muted-foreground font-bold hover:text-primary transition-colors uppercase tracking-tight">
                       {s.title}
                     </Link>
                   </li>
@@ -113,76 +120,58 @@ const LinkedinIcon = ({size=18}) => (
              </ul>
           </div>
 
-          {/* Quick Links Column (NEW) */}
-          <div>
-             <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 underline decoration-sky-600 decoration-2 underline-offset-8">Quick Links</h5>
-             <ul className="space-y-3 font-bold text-sm text-slate-600 dark:text-slate-300">
-                <li><Link href="/about" className="hover:text-sky-600 transition-colors uppercase">About Agency</Link></li>
-                <li><Link href="/blogs" className="hover:text-sky-600 transition-colors uppercase">News & Blogs</Link></li>
+          {/* Quick Links Column */}
+          <div className="space-y-8">
+             <h5 className="text-[11px] font-black text-foreground uppercase tracking-[0.2em]">Company</h5>
+             <ul className="space-y-4 text-sm text-muted-foreground font-bold uppercase tracking-tight">
+                <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+                <li><Link href="/blogs" className="hover:text-primary transition-colors">Blogs & News</Link></li>
+
                 {settings?.ctaJobEnabled !== false && (
-                  <li><Link href="/careers" className="hover:text-sky-600 transition-colors uppercase">Work with us</Link></li>
+                  <li><Link href="/careers" className="hover:text-primary transition-colors">Careers</Link></li>
                 )}
-                <li><Link href="/contact" className="hover:text-sky-600 transition-colors uppercase">Support</Link></li>
+                <li><Link href="/contact" className="hover:text-primary transition-colors">Support</Link></li>
              </ul>
           </div>
 
           {/* Contact Info Column */}
-          <div className="space-y-6">
-             <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 underline decoration-sky-600 decoration-2 underline-offset-8">Quick Contact</h5>
-             <div className="space-y-4">
-                <div className="flex items-center gap-3 group">
-                   <div className="w-10 h-10 bg-sky-50 dark:bg-slate-900 rounded-xl flex items-center justify-center text-sky-600 border border-sky-100 dark:border-slate-800">
-                      <Phone size={18} />
+          <div className="space-y-10">
+             <div className="bg-primary/5 dark:bg-primary/10 p-8 rounded-[2rem] border border-primary/10 space-y-6 relative overflow-hidden group">
+                <Shield className="absolute -right-8 -bottom-8 w-24 h-24 text-primary/10 group-hover:scale-125 transition-transform duration-1000" />
+                <div className="relative z-10 space-y-4">
+                   <p className="text-[10px] font-black text-primary uppercase tracking-widest">Head Office</p>
+                   <p className="text-xs font-black text-foreground leading-relaxed uppercase">
+                      {settings?.address || 'Gorakhpur, Uttar Pradesh, India'}
+                   </p>
+                   <div className="pt-4 flex flex-col gap-3">
+                      <div className="flex items-center gap-3">
+                         <Phone size={14} className="text-primary" />
+                         <span className="text-xs font-black text-foreground tracking-tight">{settings?.contactPhone || '+91 91513 85320'}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                         <Mail size={14} className="text-primary" />
+                         <span className="text-[10px] font-black text-foreground tracking-tight break-all uppercase">{settings?.contactEmail || 'info@aimhop.com'}</span>
+                      </div>
                    </div>
-                   <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Call Us</p>
-                      <p className="text-xs font-black text-slate-900 dark:text-white">{settings?.contactPhone || '+91 91513 85320'}</p>
-                   </div>
-                </div>
-                <div className="flex items-center gap-3 group">
-                   <div className="w-10 h-10 bg-sky-50 dark:bg-slate-900 rounded-xl flex items-center justify-center text-sky-600 border border-sky-100 dark:border-slate-800">
-                      <Mail size={18} />
-                   </div>
-                   <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Email Us</p>
-                      <p className="text-[11px] font-black text-slate-900 dark:text-white line-clamp-1">{settings?.contactEmail || 'info@aimhop.com'}</p>
-                   </div>
-                </div>
-             </div>
-          </div>
-
-          {/* Head Office Column */}
-          <div className="bg-sky-600 p-6 rounded-2xl border border-sky-700 space-y-4 shadow-lg relative overflow-hidden group">
-             <Shield className="absolute -right-6 -bottom-6 w-24 h-24 text-white/10 group-hover:scale-125 transition-transform duration-1000" />
-             <div className="relative z-10 space-y-3">
-                <p className="text-[9px] font-black text-white/60 uppercase tracking-widest">Head Office</p>
-                <p className="text-[11px] font-bold text-white leading-relaxed uppercase">
-                   {settings?.address || 'Gorakhpur, Uttar Pradesh, India'}
-                </p>
-                <div className="flex items-center gap-2 pt-1">
-                  <MapPin className="w-3.5 h-3.5 text-white/70" />
-                  <Globe className="w-3.5 h-3.5 text-white/70" />
-                  <span className="text-[9px] text-white/60 font-bold uppercase tracking-wider">PAN India Operations</span>
                 </div>
              </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-100 dark:border-slate-900">
-           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
-             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-12 mt-12 border-t border-border/50">
+           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-10">
+             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
                © 2026 {settings?.siteName || 'AimHop Security Solutions'} · India
              </p>
-             <div className="hidden sm:block h-3 w-px bg-slate-200 dark:bg-slate-800" />
-             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-               Reg. No. U74999UP2020PTC136479
+             <div className="hidden sm:block h-3 w-px bg-border" />
+             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
+               Reg: U74999UP2020PTC136479
              </p>
            </div>
-           <div className="flex items-center gap-5">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">ISO Certified</span>
-              <div className="h-4 w-px bg-slate-200 dark:bg-slate-800" />
-              <span className="text-[9px] font-black text-sky-600/70 uppercase tracking-widest">PSARA Licensed</span>
+           <div className="flex items-center gap-6">
+              <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] px-4 py-2 bg-primary/5 rounded-full border border-primary/10">ISO 9001:2015</span>
+              <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] px-4 py-2 bg-primary/5 rounded-full border border-primary/10">PSARA Licensed</span>
            </div>
         </div>
       </div>

@@ -3,23 +3,52 @@
 import { ThemeProvider as PublicThemeProvider } from "@/components/ThemeProvider";
 import { usePathname } from "next/navigation";
 import { themeSettings } from "@/styles/theme-settings";
+import { setCookie } from "@/lib/cookies";
+import { authAPI } from "@/lib/api";
+import { useTheme } from "next-themes";
+import { useEffect } from "react";
 
-export function AppThemeProvider({ children }: { children: React.ReactNode }) {
+/**
+ * Inner component to watch for theme changes and sync them.
+ * This must be inside the ThemeProvider.
+ */
+function ThemeWatcher() {
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    if (!theme) return;
+    
+    // Sync to cookie for SSR
+    setCookie("theme", theme);
+
+    // Sync to DB (if logged in)
+    if (theme !== 'system') {
+      authAPI.updatePreferences({ theme }).catch(() => {});
+    }
+  }, [theme]);
+
+  return null;
+}
+
+export function AppThemeProvider({ 
+  children, 
+  initialTheme 
+}: { 
+  children: React.ReactNode;
+  initialTheme?: string;
+}) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin');
 
-  // We always render the provider to avoid React 19 script tag errors.
-  // HOWEVER, if it's an admin page, we FORCE it to "light" so the public
-  // website's dark mode doesn't affect the admin dashboard.
-  // The Admin panel has its own isolated theme wrapper inside AdminLayout.
   return (
     <PublicThemeProvider
       attribute="class"
-      defaultTheme={themeSettings.defaultTheme}
+      defaultTheme={initialTheme || themeSettings.defaultTheme}
       forcedTheme={isAdmin ? "light" : themeSettings.forcedTheme}
       enableSystem={!isAdmin}
       disableTransitionOnChange
     >
+      <ThemeWatcher />
       {children}
     </PublicThemeProvider>
   );

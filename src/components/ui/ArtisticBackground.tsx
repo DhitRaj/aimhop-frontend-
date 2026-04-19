@@ -108,21 +108,14 @@ const ArtisticBackground = () => {
         });
       }
 
-      // Texture overlay
-      const img = new window.Image();
-      img.src = 'https://www.transparenttextures.com/patterns/dust.png';
-      img.crossOrigin = "anonymous"; 
-      img.onload = () => {
-        const pattern = ctx.createPattern(img, 'repeat');
-        if (pattern) {
-          ctx.save();
-          ctx.globalAlpha = theme === 'dark' ? 0.05 : 0.1;
-          ctx.globalCompositeOperation = 'overlay';
-          ctx.fillStyle = pattern;
-          ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-          ctx.restore();
-        }
-      };
+      // Organic grain effect (simulated with random points if needed, but clean shapes are better)
+      ctx.save();
+      ctx.globalAlpha = 0.02;
+      ctx.fillStyle = theme === 'dark' ? '#ffffff' : '#000000';
+      for (let i = 0; i < 1000; i++) {
+        ctx.fillRect(Math.random() * window.innerWidth, Math.random() * window.innerHeight, 1, 1);
+      }
+      ctx.restore();
     };
 
     resize();

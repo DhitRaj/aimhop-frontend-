@@ -5,10 +5,11 @@ import { MessageCircle, X, Send } from "lucide-react";
 
 interface WhatsAppModalProps {
   isFloating?: boolean;
+  whatsappNumber?: string;
   children?: React.ReactNode;
 }
 
-export function WhatsAppModal({ isFloating = false, children }: WhatsAppModalProps) {
+export function WhatsAppModal({ isFloating = false, whatsappNumber = "9151385320", children }: WhatsAppModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -22,9 +23,6 @@ export function WhatsAppModal({ isFloating = false, children }: WhatsAppModalPro
     // Construct the WhatsApp message
     const message = `Hello AimHop, I have an inquiry:\n\n*Name:* ${formData.name}\n*Phone:* ${formData.phone}\n*Query:* ${formData.query}`;
     const encodedMessage = encodeURIComponent(message);
-    
-    // Assuming AimHop's WhatsApp number is 9151385320 based on previous configurations
-    const whatsappNumber = "919151385320"; 
     
     // Redirect to WhatsApp
     window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');

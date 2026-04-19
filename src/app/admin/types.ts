@@ -24,6 +24,8 @@ export interface Service {
   _id: string;
   title: string;
   description: string;
+  category?: string;
+  price?: number;
   icon: string;
   features: string[];
   order: number;
@@ -37,6 +39,7 @@ export interface Blog {
   category: string;
   author: string;
   thumbnail?: string;
+  image?: string; 
   createdAt: string;
 }
 
@@ -86,21 +89,21 @@ export interface Settings {
   contactEmail: string;
   contactPhone: string;
   contactPhone2?: string;
+  whatsappNumber?: string;
   address: string;
   logo?: string;
   favicon?: string;
   heroImage?: string;
+  contactImage?: string;
+  cctvImage?: string;
   
   // Home Features
   feature1Title: string;
   feature1Desc: string;
-  feature1Icon?: string;
   feature2Title: string;
   feature2Desc: string;
-  feature2Icon?: string;
   feature3Title: string;
   feature3Desc: string;
-  feature3Icon?: string;
 
   // Director
   directorName?: string;
@@ -116,8 +119,6 @@ export interface Settings {
 
   // Toggles
   ctaJobEnabled?: boolean;
-  ctaBrochureEnabled?: boolean;
-  ctaSafetyAuditEnabled?: boolean;
 
   socials: {
     facebook?: string;

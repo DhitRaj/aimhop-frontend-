@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { blogAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
+import SafeImage from "@/components/SafeImage";
 import { Blog } from "../types";
 
 export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => void }) {
@@ -42,7 +43,7 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
     formData.append('content', editing.content || '');
     formData.append('category', editing.category || 'News');
     formData.append('author', editing.author || 'Admin');
-    if (file) formData.append('thumbnail', file);
+    if (file) formData.append('image', file);
 
     const { error } = (editing as Blog)._id 
       ? await blogAPI.update((editing as Blog)._id, formData)
@@ -94,8 +95,13 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
          {filtered.map(blog => (
            <div key={blog._id} className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-slate-200 dark:hover:border-slate-700 transition-all">
               <div className="aspect-video relative bg-slate-50 dark:bg-slate-950 overflow-hidden">
-                {blog.thumbnail ? (
-                  <img src={getMediaUrl(blog.thumbnail)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={blog.title} />
+                {blog.image || blog.thumbnail ? (
+                  <SafeImage 
+                    src={getMediaUrl(blog.image || blog.thumbnail) + `?t=${new Date(blog.updatedAt || blog.createdAt).getTime()}`} 
+                    fill
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                    alt={blog.title} 
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-slate-200 dark:text-slate-800 group-hover:scale-110 transition-transform duration-700"><Layout size={40} /></div>
                 )}
@@ -220,9 +226,9 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
                                    <ShieldCheck size={32} />
                                    <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Image Selected</span>
                                 </div>
-                             ) : editing?.thumbnail ? (
+                             ) : (editing?.image || editing?.thumbnail) ? (
                                 <div className="relative w-full h-full">
-                                    <img src={getMediaUrl(editing.thumbnail)} className="w-full h-full object-cover opacity-60" alt="preview" />
+                                    <SafeImage src={getMediaUrl(editing.image || editing.thumbnail) + `?t=${Date.now()}`} fill className="w-full h-full object-cover opacity-60" alt="preview" />
                                     <div className="absolute inset-0 flex items-center justify-center text-slate-900 dark:text-white">
                                         <ImageIcon size={24} />
                                     </div>
@@ -233,8 +239,11 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
                                    <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Upload Image</span>
                                 </div>
                              )}
-                             <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                             <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
                           </div>
+                          <p className="text-[10px] text-slate-400 mt-2 ml-1">
+                             * Recommended size: 1200x675px (16:9 Ratio).
+                           </p>
                        </div>
                     </div>
                  </div>

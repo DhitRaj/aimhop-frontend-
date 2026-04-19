@@ -40,9 +40,9 @@ export function BannersView() {
 
   const fetchBanners = async () => {
     setLoading(true);
-    const { data } = await bannerAPI.getAll();
-    if (data) {
-      const sorted = [...data].sort((a, b) => (a.order || 0) - (b.order || 0));
+    const res = await bannerAPI.getAll();
+    if (res.data && Array.isArray(res.data)) {
+      const sorted = [...res.data].sort((a, b) => (a.order || 0) - (b.order || 0));
       setBanners(sorted);
     }
     setLoading(false);
@@ -220,95 +220,107 @@ export function BannersView() {
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsModalOpen(false)} />
-          <div className="relative bg-white dark:bg-slate-900 w-full max-w-lg max-h-[90vh] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden">
-            <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/50 shrink-0">
-              <h2 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">
+          <div className="relative bg-white dark:bg-slate-900 w-full max-w-md max-h-[85vh] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col animate-in zoom-in-95 duration-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/50 shrink-0">
+              <h2 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">
                 {editingBanner ? "Edit Banner" : "New Banner"}
               </h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all"
               >
-                <X size={16} />
+                <X size={15} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
-                <div className="space-y-2">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Banner Title</label>
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                {/* Title */}
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Title</label>
                   <input 
                     type="text" 
                     value={formData.title} 
                     onChange={e => setFormData({...formData, title: e.target.value})}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3 h-11 text-xs font-bold uppercase tracking-tight text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                    placeholder="Enter headline..."
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-lg px-3 py-2 h-9 text-xs font-bold uppercase tracking-tight text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    placeholder="Banner title..."
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Display Page</label>
+                {/* Page & Order */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Page</label>
                     <div className="relative">
                       <select 
                         value={formData.page}
                         onChange={e => setFormData({...formData, page: e.target.value})}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3 h-11 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer uppercase tracking-widest"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-lg px-3 py-2 h-9 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
                       >
-                        <option value="Home">Home Page</option>
-                        <option value="About">About Us</option>
+                        <option value="Home">Home</option>
+                        <option value="About">About</option>
                         <option value="Services">Services</option>
                         <option value="Clients">Clients</option>
                         <option value="Careers">Careers</option>
                         <option value="Contact">Contact</option>
+                        <option value="Blogs">News & Blogs</option>
                       </select>
-                      <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={14} />
+                      <ChevronRight className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={12} />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Display Order</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Order</label>
                     <input 
                       type="number" 
                       value={formData.order} 
                       onChange={e => setFormData({...formData, order: e.target.value})}
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3 h-11 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-lg px-3 py-2 h-9 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Description / Subtitle</label>
+                {/* Subtitle */}
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Subtitle</label>
                   <textarea 
                     rows={2}
                     value={formData.subtitle} 
                     onChange={e => setFormData({...formData, subtitle: e.target.value})}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-medium italic text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
-                    placeholder="Enter description..."
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
+                    placeholder="Add description..."
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Banner Image</label>
-                  <div className="h-32 bg-slate-50 dark:bg-slate-950 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center group hover:border-indigo-500/50 transition-all relative overflow-hidden">
+                {/* Image Upload */}
+                <div className="space-y-1.5">
+                  <label className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Image</label>
+                  <p className="text-[9px] text-slate-400 italic mb-2">* Recommended size: 1920x600px (Balanced wide aspect) for best results.</p>
+                  <div className="relative group">
                     {imagePreview ? (
-                      <div className="w-full h-full relative">
+                      <div className="relative aspect-[3.2/1] bg-slate-50 dark:bg-slate-950 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">
                         <img src={imagePreview} className="w-full h-full object-cover" alt="Preview" />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                           <label className="cursor-pointer bg-white text-slate-900 px-4 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-slate-100 shadow-sm">
-                              Change Image
-                              <input type="file" onChange={e => {
-                                const file = e.target.files?.[0] || null;
-                                setImageFile(file);
-                                setImagePreview(file ? URL.createObjectURL(file) : null);
-                              }} className="hidden" />
-                           </label>
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1.5 transition-all">
+                          <label className="cursor-pointer bg-white text-slate-900 px-2.5 py-1 rounded text-[7px] font-bold uppercase tracking-widest hover:bg-slate-100 shadow-sm">
+                            Change
+                            <input type="file" accept="image/*" onChange={e => {
+                              const file = e.target.files?.[0] || null;
+                              setImageFile(file);
+                              setImagePreview(file ? URL.createObjectURL(file) : null);
+                            }} className="hidden" />
+                          </label>
+                          <button type="button" onClick={() => {
+                            setImageFile(null);
+                            setImagePreview(null);
+                          }} className="bg-rose-500 text-white px-2.5 py-1 rounded text-[7px] font-bold uppercase tracking-widest hover:bg-rose-600 shadow-sm">
+                            Remove
+                          </button>
                         </div>
                       </div>
                     ) : (
-                      <label className="cursor-pointer flex flex-col items-center gap-2 text-slate-400 hover:text-indigo-500 transition-colors w-full h-full justify-center">
-                        <Upload size={20} />
-                        <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Click to Upload</span>
-                        <input type="file" onChange={e => {
+                      <label className="cursor-pointer flex items-center justify-center gap-1.5 h-20 bg-slate-50 dark:bg-slate-950 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg hover:border-indigo-500/50 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition-all">
+                        <Upload size={14} className="text-slate-400" />
+                        <span className="text-[7px] font-bold text-slate-500 uppercase tracking-[0.15em]">Upload</span>
+                        <input type="file" accept="image/*" onChange={e => {
                           const file = e.target.files?.[0] || null;
                           setImageFile(file);
                           setImagePreview(file ? URL.createObjectURL(file) : null);
@@ -318,21 +330,22 @@ export function BannersView() {
                   </div>
                 </div>
 
-                <div className="pt-4 flex items-center justify-end gap-3">
+                {/* Buttons */}
+                <div className="pt-2 flex items-center justify-end gap-2">
                   <button 
                     type="button"
                     onClick={() => setIsModalOpen(false)} 
-                    className="px-6 h-10 text-[10px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all uppercase tracking-widest"
+                    className="px-4 h-9 text-[9px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all uppercase tracking-widest"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={(e: any) => handleSubmit(e)}
                     disabled={submitting}
-                    className="bg-indigo-600 text-white px-8 h-10 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 disabled:opacity-50"
+                    className="bg-indigo-600 text-white px-6 h-9 rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5 transition-all shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 disabled:opacity-50"
                   >
-                    {submitting ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} 
-                    {editingBanner ? "Save Changes" : "Save Banner"}
+                    {submitting ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />} 
+                    {editingBanner ? "Save" : "Create"}
                   </button>
                 </div>
             </form>

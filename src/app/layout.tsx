@@ -50,7 +50,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const siteTitle = settings?.siteName || "AimHop Security Solutions Pvt. Ltd.";
   const siteDescription = settings?.siteDescription || "India's leading security solutions agency. We provide highly trained security guards, electronic surveillance (CCTV), bouncers, and facility management services.";
-  const faviconPath = getMediaUrl(settings?.favicon) || "/favicon.ico";
+  const faviconPath = settings?.favicon 
+    ? `${getMediaUrl(settings.favicon)}${settings.updatedAt ? '?v=' + new Date(settings.updatedAt).getTime() : ''}` 
+    : "/favicon.ico";
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aimhop.com";
 
   return {
@@ -138,19 +140,36 @@ export async function generateMetadata(): Promise<Metadata> {
 import { AppThemeProvider } from "@/components/AppThemeProvider";
 import { WhatsAppModal } from "@/components/WhatsAppModal";
 import ArtisticBackground from "@/components/ui/ArtisticBackground";
+import { cookies } from "next/headers";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme")?.value || "light";
+
+  const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
+  let settings: any = null;
+  try {
+    const res = await fetch(`${API_URL}/api/v1/settings`, { cache: 'no-store' });
+    if (res.ok) {
+      settings = await res.json();
+    }
+  } catch (error) {
+    console.error("Failed to fetch settings in layout", error);
+  }
+
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning data-scroll-behavior="smooth">
-      <body className="antialiased font-inter bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
-        <AppThemeProvider>
+    <html lang="en" className={`${inter.variable} ${theme}`} suppressHydrationWarning style={{ colorScheme: theme }}>
+      <body className="antialiased bg-background text-foreground transition-colors duration-300">
+        <AppThemeProvider initialTheme={theme}>
           <ArtisticBackground />
-          {children}
-          <WhatsAppModal isFloating />
+          <div className="relative flex flex-col min-h-screen">
+            {children}
+          </div>
+          <WhatsAppModal isFloating whatsappNumber={settings?.whatsappNumber} />
         </AppThemeProvider>
       </body>
     </html>

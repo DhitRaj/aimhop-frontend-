@@ -1,16 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Phone, Mail, MapPin, Shield, Clock, CheckCircle2, Zap } from "lucide-react";
 import { contactAPI } from "@/lib/api";
 
 export default function ContactForm() {
+  const searchParams = useSearchParams();
+  const preselectedService = searchParams.get('service');
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     subject: "Security Guard (Armed / Unarmed)",
     message: ""
   });
+
+  useEffect(() => {
+    if (preselectedService) {
+      // Map URL params to actual select options
+      let matchedSubject = "Security Guard (Armed / Unarmed)";
+      if (preselectedService.toLowerCase() === 'cctv') matchedSubject = "CCTV & Electronic Surveillance";
+      if (preselectedService.toLowerCase() === 'bouncer') matchedSubject = "Bouncer / Event Security";
+      
+      setFormData(prev => ({ ...prev, subject: matchedSubject }));
+    }
+  }, [preselectedService]);
+
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
 
@@ -83,6 +99,7 @@ export default function ContactForm() {
               <option>Security Guard (Armed / Unarmed)</option>
               <option>Bouncer / Event Security</option>
               <option>Bodyguard / Escort Guard</option>
+              <option>CCTV & Electronic Surveillance</option>
               <option>Manpower Supply (Skilled)</option>
               <option>Manpower Supply (Non-Skilled)</option>
               <option>Facility Management & Housekeeping</option>

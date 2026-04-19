@@ -17,7 +17,7 @@ export function AboutPage() {
   useEffect(() => {
     Promise.all([settingsAPI.get(), bannerAPI.getAll(true, 'About')]).then(([setRes, banRes]) => {
       if (setRes.data) setSettings(setRes.data);
-      if (banRes.data && banRes.data.length > 0) setBanner(banRes.data[0]);
+      if (banRes.data && (banRes.data as any[]).length > 0) setBanner((banRes.data as any[])[0]);
     });
   }, []);
 
@@ -27,56 +27,57 @@ export function AboutPage() {
   const heroSubtitle = banner?.subtitle || "Trusted Security Partner Since 2020";
 
   return (
-    <div className="bg-white dark:bg-slate-950 min-h-screen">
+    <div className="bg-background min-h-screen">
       <Navbar />
 
-      <main className="pb-20">
+      <main className="pb-32">
         <PageHero
           title={heroTitle}
           subtitle={heroSubtitle}
           backgroundImage={heroImg}
         />
 
-        <div className="max-w-7xl mx-auto px-6">
-          <Breadcrumb title="About Us" />
+        <div className="container-pad">
+          <Breadcrumb title="Our DNA" />
 
-          <div className="grid lg:grid-cols-2 gap-16 items-start mt-10">
-            <div className="space-y-10">
-              <div className="space-y-4">
-                <h2 className="text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-tight">
-                  Company Profile
+          <div className="grid lg:grid-cols-2 gap-24 items-start">
+            <div className="space-y-16">
+              <div className="space-y-6">
+                <h2 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase leading-[0.9]">
+                  Decades of <br />
+                  <span className="gradient-text">Discipline.</span>
                 </h2>
-                <p className="text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                  Aimhop Security Solution Private Limited is an ISO 9001:2020 Certified leading Security Service Provider established in 2020. The company has expanded at a compound annual growth over the last year. We provide manpower services in strict accordance with physical, educational &amp; medical standards. The company is committed to providing customized site-specific training through an experienced training team as per the training syllabus of the Private Securities Regulation Act 2005.
+                <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+                  Aimhop Security Solution Private Limited is an ISO 9001:2020 Certified leading Security Service Provider established in 2020. We are defined by a singular focus: Military-grade protection delivered through modern innovation.
                 </p>
               </div>
 
-              <div className="space-y-6">
-                <div className="bg-slate-50 dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 relative overflow-hidden group">
+              <div className="grid sm:grid-cols-2 gap-8">
+                <div className="p-10 bg-card border border-border rounded-[2.5rem] card-hover relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-6 opacity-5">
-                    <Shield className="w-24 h-24 text-sky-600 group-hover:scale-125 transition-transform duration-500" />
+                    <Shield className="w-24 h-24 text-primary group-hover:scale-125 transition-transform duration-500" />
                   </div>
-                  <h3 className="relative z-10 text-xl font-black tracking-tight uppercase text-sky-600 mb-3">Our Mission</h3>
-                  <p className="relative z-10 text-sm font-medium text-slate-500 leading-relaxed">
-                    It is our mission to provide efficient client-specific and customized integrated security solutions at the most competitive rates. We are committed to ensuring peace of mind to our clients by providing the highest level of protection to their assets while maintaining business ethics. We are maintaining a safe & secure environment by adopting the best practices of the security industry.
+                  <h3 className="text-xl font-black tracking-tight uppercase text-primary mb-4">Our Mission</h3>
+                  <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                    Efficient client-specific integrated security solutions at the most competitive rates. Peace of mind through total protection of assets.
                   </p>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 relative overflow-hidden group">
+                <div className="p-10 bg-card border border-border rounded-[2.5rem] card-hover relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-6 opacity-5">
-                    <CheckCircle2 className="w-24 h-24 text-sky-600 group-hover:scale-125 transition-transform duration-500" />
+                    <CheckCircle2 className="w-24 h-24 text-primary group-hover:scale-125 transition-transform duration-500" />
                   </div>
-                  <h3 className="relative z-10 text-xl font-black tracking-tight uppercase text-sky-600 mb-3">Our Vision</h3>
-                  <p className="relative z-10 text-sm font-medium text-slate-500 leading-relaxed">
-                    The vision of AIMHOP SECURITY SOLUTION PVT. LTD. is to be the most competent, reliable and professional pan-India security solution provider.
+                  <h3 className="text-xl font-black tracking-tight uppercase text-primary mb-4">Our Vision</h3>
+                  <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                    To be the most competent, reliable, and professional pan-India security solution provider in the modern era.
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <h3 className="text-2xl font-black tracking-tight uppercase">Key Features</h3>
-                <div className="flex flex-wrap gap-3">
-                  {['Professional Staff', 'Excellent Customer Service', 'Affordable', 'Reliable', 'Day to day updates & Reports', 'Prompt Response', 'Staff Training & Development', 'Feedback & Suggestions', 'Wide Spread Network', 'Leadership'].map(feature => (
-                    <span key={feature} className="px-4 py-2 bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-400 font-bold text-xs uppercase tracking-widest rounded-xl border border-sky-100 dark:border-slate-700">
+              <div className="space-y-8">
+                <h3 className="text-[11px] font-black tracking-[0.3em] uppercase opacity-30">The AimHop Edge</h3>
+                <div className="flex flex-wrap gap-4">
+                  {['Professional Staff', 'Prompt Response', 'Affordable', 'Reliable', 'Daily Reports', 'ISO Certified', 'Ex-Army Leadership'].map(feature => (
+                    <span key={feature} className="px-5 py-3 bg-muted border border-border text-foreground font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-primary hover:text-white hover:border-primary transition-all cursor-default">
                       {feature}
                     </span>
                   ))}
@@ -84,33 +85,63 @@ export function AboutPage() {
               </div>
             </div>
 
-            <div className="space-y-8 bg-slate-50 dark:bg-slate-900 p-10 rounded-3xl border border-slate-200 dark:border-slate-800">
-              <div className="space-y-5 text-center sm:text-left">
-                <h3 className="text-2xl font-black tracking-tight uppercase text-center sm:text-left mb-6">Director's Message</h3>
-                <div className="aspect-[4/5] bg-slate-200 dark:bg-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex items-center justify-center relative">
-                  {directorImg ? (
-                    <SafeImage src={directorImg} alt="Director" fill className="w-full h-full object-cover" />
-                  ) : (
-                    <Award size={80} className="text-slate-300 dark:text-slate-700" />
-                  )}
-                </div>
-                <div className="space-y-1 pt-4">
-                  <h4 className="text-2xl font-black uppercase text-sky-600 tracking-tighter">
-                    {settings?.directorName || 'O.P. YADAV (Ex. Army)'}
-                  </h4>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Chief Managing Director</p>
-                </div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed italic text-lg leading-snug">
-                  "{settings?.directorMessage || 'Our goal is to keep every Indian safe.'}"
-                </p>
-                <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-center sm:justify-start gap-4">
-                  <div className="w-12 h-12 bg-sky-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-sky-600">
-                    <Award className="w-6 h-6" />
+            <div className="lg:sticky lg:top-32 space-y-10">
+              <div className="bg-primary p-12 rounded-[4rem] relative overflow-hidden shadow-2xl shadow-primary/20">
+                <Shield className="absolute -right-12 -bottom-12 w-48 h-48 text-white/10" />
+                <div className="relative z-10 space-y-8">
+                  <div className="flex items-center gap-6">
+                    <div className="w-24 h-24 rounded-[2rem] border-4 border-white/20 overflow-hidden bg-white/10 backdrop-blur-md flex items-center justify-center font-black text-white text-3xl shadow-xl">
+                      {directorImg ? <img src={directorImg} alt="Director" className="w-full h-full object-cover" /> : 'OP'}
+                    </div>
+                    <div>
+                       <h4 className="text-2xl font-black text-white uppercase tracking-tighter">
+                          {settings?.directorName || 'O.P. YADAV'}
+                       </h4>
+                       <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">{settings?.directorRole || 'Managing Director'}</p>
+                    </div>
                   </div>
-                  <span className="font-black uppercase tracking-widest text-[9px] text-slate-500">Security Leadership Certified</span>
+                  <blockquote className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase">
+                    "{settings?.directorMessage || 'Our goal is to keep every Indian safe. We deliver security with discipline and integrity.'}"
+                  </blockquote>
+                  <div className="pt-8 border-t border-white/10">
+                    <div className="flex items-center gap-4">
+                       <Award className="w-6 h-6 text-white/40" />
+                       <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Elite Security Leadership Certified</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* STRATEGIC PROCESS SECTION - Increasing Content Depth */}
+          <div className="mt-40 space-y-24">
+             <div className="text-center max-w-3xl mx-auto space-y-6">
+                <h3 className="text-[11px] font-black tracking-[0.4em] uppercase text-primary">Operational Protocol</h3>
+                <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
+                   Tactical <br />
+                   <span className="gradient-text">Deployment Roadmap.</span>
+                </h2>
+                <p className="text-muted-foreground font-medium text-lg">Our proven 4-stage methodology ensures zero-gap protection for every client asset.</p>
+             </div>
+
+             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {[
+                  { n: "01", t: "Intelligence Audit", d: "Ex-army specialists conduct a 360-degree vulnerability assessment of your facility." },
+                  { n: "02", t: "Custom Strategy", d: "We design a tailored security protocol integrating guarding and electronic surveillance." },
+                  { n: "03", t: "Elite Deployment", d: "ISO-certified personnel are deployed with field-ready equipment and tactical briefs." },
+                  { n: "04", t: "Command Monitoring", d: "24/7 oversight via our remote hub ensures continuous performance and rapid response." },
+                ].map((step, i) => (
+                  <div key={step.n} className="p-10 bg-card border border-border rounded-[3rem] card-hover relative overflow-hidden group">
+                     <span className="absolute -top-4 -right-4 text-8xl font-black opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500">{step.n}</span>
+                     <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-xs mb-8 shadow-xl shadow-primary/20">
+                        {step.n}
+                     </div>
+                     <h4 className="text-xl font-black uppercase tracking-tight mb-4">{step.t}</h4>
+                     <p className="text-sm text-muted-foreground font-medium leading-relaxed">{step.d}</p>
+                  </div>
+                ))}
+             </div>
           </div>
         </div>
       </main>

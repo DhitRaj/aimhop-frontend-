@@ -1,8 +1,9 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Shield } from "lucide-react";
 import Image from "next/image";
 import ContactForm from "@/components/ContactForm";
 import { settingsAPI, bannerAPI } from "@/lib/api";
@@ -36,60 +37,73 @@ export default async function ContactPage() {
   const heroSubtitle = banner?.subtitle || "We are available 24/7 — Call or message anytime";
 
   return (
-    <div className="bg-white dark:bg-slate-950 min-h-screen">
+    <div className="bg-background min-h-screen">
       <Navbar />
 
-      <main className="pb-20">
+      <main className="pb-32">
         <PageHero
           title={heroTitle}
           subtitle={heroSubtitle}
           backgroundImage={heroImg}
         />
 
-        <div className="max-w-7xl mx-auto px-6">
-          <Breadcrumb title="Contact Us" />
+        <div className="container-pad">
+          <Breadcrumb title="Get In Touch" />
 
-          <div className="grid lg:grid-cols-2 gap-16 mt-14 items-stretch">
+          <div className="grid lg:grid-cols-2 gap-24 items-start">
             {/* Left: Contact Info */}
-            <div className="space-y-10">
-              <div className="space-y-3">
-                <h2 className="text-3xl font-black tracking-tight uppercase leading-tight">
-                  Talk to Us —<br /><span className="text-sky-600">We are Here.</span>
+            <div className="space-y-16">
+              <div className="space-y-6">
+                <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-[0.9]">
+                  Talk to Our <br />
+                  <span className="gradient-text">Experts.</span>
                 </h2>
-                <p className="text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed">For any security needs — whether you need guards, CCTV installation, or have an inquiry — call or message us for a quick response.</p>
+                <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-xl">
+                  Whether you need strategic guarding, electronic surveillance, or a custom security audit, our specialized team is standing by 24/7.
+                </p>
               </div>
 
-              <div className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-8">
                 {[
-                  { t: "Call Us Anytime", v: `${settings?.contactPhone || '+91 91513 85320'} ${settings?.contactPhone2 ? ' / ' + settings.contactPhone2 : ''}`, i: <Phone />, desc: "Available 24/7 — talk directly to our experts" },
-                  { t: "Email Us", v: settings?.contactEmail || "aimhopgroup@gmail.com", i: <Mail />, desc: "Send an email for inquiries or quotes" },
-                  { t: "Our Office", v: settings?.address || "Gorakhpur (U.P) 273010", i: <MapPin />, desc: "Visit us — you are always welcome at our office" },
-                  { t: "Other Locations", v: "Delhi | Mumbai | Lucknow | Gujarat", i: <MapPin />, desc: "We operate in your city too" }
+                  { t: "Direct Line", v: settings?.contactPhone || '+91 91513 85320', i: <Phone size={24} />, desc: "24/7 Emergency Response" },
+                  { t: "Official Email", v: settings?.contactEmail || "info@aimhop.com", i: <Mail size={24} />, desc: "Quotes & Proposals" },
+                  { t: "Headquarters", v: settings?.address || "Gorakhpur, UP", i: <MapPin size={24} />, desc: "Main Operations Center" },
+                  { t: "Availability", v: "Always Open", i: <Clock size={24} />, desc: "365 Days a Year" }
                 ].map(item => (
-                  <div key={item.t} className="flex gap-5 items-start group">
-                    <div className="w-12 h-12 rounded-2xl bg-sky-600/10 border border-sky-400/20 flex items-center justify-center text-sky-600 group-hover:bg-sky-600 group-hover:text-white transition-all shadow-sm shrink-0">
+                  <div key={item.t} className="p-8 bg-card border border-border rounded-[2.5rem] card-hover group">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-500">
                       {item.i}
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-0.5">{item.t}</p>
-                      <p className="text-lg font-black tracking-tight text-slate-900 dark:text-white">{item.v}</p>
-                      <p className="text-sm font-medium text-slate-500 mt-0.5">{item.desc}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">{item.t}</p>
+                      <p className="text-lg font-black tracking-tight leading-tight break-words">{item.v}</p>
+
+                      <p className="text-xs font-medium text-muted-foreground mt-2 opacity-60">{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-sky-50 dark:bg-sky-900/10 p-6 rounded-2xl border border-sky-100 dark:border-sky-800 flex items-center gap-5">
-                <Clock className="w-8 h-8 text-sky-600 shrink-0" />
-                <div>
-                  <h5 className="font-black text-base uppercase tracking-tight">Response Guarantee</h5>
-                  <p className="text-sm font-medium text-slate-500 mt-1">We are available 24/7, 365 days a year — ready whenever you need us.</p>
-                </div>
+              <div className="p-10 bg-primary/5 rounded-[2.5rem] border border-primary/10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+                 <Shield className="absolute -right-8 -bottom-8 w-32 h-32 text-primary/5 group-hover:scale-110 transition-transform" />
+                 <div className="bg-primary p-5 rounded-2xl text-white shadow-xl">
+                    <Clock size={32} />
+                 </div>
+                 <div className="relative z-10 text-center md:text-left">
+                   <h5 className="font-black text-xl uppercase tracking-tighter">Instant Support Guarantee</h5>
+                   <p className="text-sm font-medium text-muted-foreground mt-1 max-w-sm">
+                      We respond to all critical security inquiries within 15 minutes.
+                   </p>
+                 </div>
               </div>
             </div>
 
             {/* Right: Form */}
-            <ContactForm />
+            <div className="lg:sticky lg:top-32">
+               <Suspense fallback={<div className="p-8 h-96 bg-card rounded-[2.5rem] animate-pulse" />}>
+                 <ContactForm />
+               </Suspense>
+            </div>
           </div>
         </div>
       </main>
