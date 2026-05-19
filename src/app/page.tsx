@@ -412,33 +412,34 @@ export default async function HomePage() {
         {/* CTA SECTION - High Impact */}
         <section className="section-spacing bg-background relative overflow-hidden">
           <div className="container-pad relative z-10">
-            <div className="bg-primary p-12 md:p-24 rounded-[4rem] relative overflow-hidden shadow-2xl shadow-primary/20">
+            <div className="bg-[#0B1120] border border-slate-800 p-12 md:p-20 rounded-[2.5rem] relative overflow-hidden">
               {/* Background Image from Admin Settings */}
               {settings?.contactImage && (
                 <SafeImage
                   src={getMediaUrl(settings.contactImage)}
                   alt="Contact Banner"
                   fill
-                  className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
+                  className="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-luminosity"
                 />
               )}
-              <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-white/10 rounded-full blur-[100px]" />
-              <div className="relative z-10 text-center space-y-10 max-w-4xl mx-auto">
-                <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
-                  Ready to hard-lock <br />
-                  your facility?
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-transparent to-transparent opacity-80" />
+              <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
+              
+              <div className="relative z-10 text-center space-y-8 max-w-3xl mx-auto">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                  Ready to elevate your facility's security?
                 </h2>
-                <p className="text-white/80 text-lg md:text-2xl font-medium">
-                  Talk to our ex-army security consultants today for a free site audit.
+                <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                  Consult with our veteran security specialists today to identify vulnerabilities and receive a comprehensive, free site risk assessment.
                 </p>
-                <div className="flex flex-wrap justify-center gap-6 pt-4">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                   <WhatsAppModal whatsappNumber={settings?.whatsappNumber}>
-                    <button className="px-10 py-5 bg-white text-primary font-black rounded-3xl text-lg hover:bg-slate-50 transition-all active:scale-95 shadow-xl">
-                      BOOK FREE AUDIT
+                    <button className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-[#10B981] hover:bg-emerald-600 text-white font-semibold rounded-xl text-base transition-all active:scale-95 shadow-sm">
+                      Book Free Risk Assessment
                     </button>
                   </WhatsAppModal>
-                  <a href={`tel:${settings?.contactPhone || '9151385320'}`} className="px-10 py-5 bg-black text-white font-black rounded-3xl text-lg hover:bg-slate-900 transition-all active:scale-95 border border-white/20 shadow-xl">
-                    CALL NOW
+                  <a href={`tel:${settings?.contactPhone || '9151385320'}`} className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-transparent border border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-white font-semibold rounded-xl text-base transition-all active:scale-95 shadow-sm">
+                    Talk to Coordinator
                   </a>
                 </div>
               </div>
