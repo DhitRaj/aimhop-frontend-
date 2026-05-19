@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI, settingsAPI, isLoggedIn } from '@/lib/api';
 import { getMediaUrl } from "@/lib/utils";
-import { Shield, Lock, User, Loader2, ArrowRight } from "lucide-react";
+import { Shield, Lock, User, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -65,7 +66,7 @@ const LoginPage = () => {
                 className="w-24 h-24 object-contain shadow-lg rounded-lg"
               />
             ) : (
-              <div className="w-16 h-16 bg-gradient-to-br from-amber-700 to-amber-900 rounded-lg flex items-center justify-center text-white shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-sm shadow-emerald-500/20">
                 <Shield size={32} strokeWidth={1.5} />
               </div>
             )}
@@ -94,7 +95,7 @@ const LoginPage = () => {
                   placeholder="admin@aimhop.com"
                   required
                   autoComplete="email"
-                  className="w-full bg-gray-50 border-2 border-gray-300 hover:border-gray-400 focus:border-amber-600 focus:bg-white rounded-lg pl-12 pr-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:shadow-md"
+                  className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#4F7CFF] focus:ring-2 focus:ring-[#4F7CFF]/20 focus:bg-white rounded-lg pl-12 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -113,7 +114,7 @@ const LoginPage = () => {
                   placeholder="Enter your password"
                   required
                   autoComplete="current-password"
-                  className="w-full bg-gray-50 border-2 border-gray-300 hover:border-gray-400 focus:border-amber-600 focus:bg-white rounded-lg pl-12 pr-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:shadow-md"
+                  className="w-full bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#4F7CFF] focus:ring-2 focus:ring-[#4F7CFF]/20 focus:bg-white rounded-lg pl-12 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -127,23 +128,17 @@ const LoginPage = () => {
             )}
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg disabled:shadow-none disabled:opacity-70 uppercase tracking-wide text-sm"
+              variant="primary"
+              size="lg"
+              fullWidth
+              isLoading={loading}
+              rightIcon={<ArrowRight size={18} strokeWidth={2} />}
+              className="uppercase tracking-wide"
             >
-              {loading ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
-                  <span>Signing in...</span>
-                </>
-              ) : (
-                <>
-                  <span>Sign In</span>
-                  <ArrowRight size={18} strokeWidth={2} />
-                </>
-              )}
-            </button>
+              Sign In
+            </Button>
           </form>
 
           {/* Footer Info */}

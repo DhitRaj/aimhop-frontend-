@@ -18,6 +18,16 @@ export function ThemeProvider({
   children,
   ...props
 }: any) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+  return (
+    <NextThemesProvider 
+      {...props}
+      storageKey="theme"
+      enableColorScheme={false}
+      enableSystem={true}
+      disableTransitionOnChange={false}
+    >
+      {children}
+    </NextThemesProvider>
+  );
 }
 

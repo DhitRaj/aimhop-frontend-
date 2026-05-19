@@ -1,11 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import { getMediaUrl } from "@/lib/utils";
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const bricolageGrotesque = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-bricolage",
   display: "swap",
 });
 
@@ -140,6 +148,7 @@ export async function generateMetadata(): Promise<Metadata> {
 import { AppThemeProvider } from "@/components/AppThemeProvider";
 import { WhatsAppModal } from "@/components/WhatsAppModal";
 import ArtisticBackground from "@/components/ui/ArtisticBackground";
+import { ThemeScript } from "@/components/ThemeScript";
 import { cookies } from "next/headers";
 
 export default async function RootLayout({
@@ -162,8 +171,11 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={`${inter.variable} ${theme}`} suppressHydrationWarning style={{ colorScheme: theme }}>
-      <body className="antialiased bg-background text-foreground transition-colors duration-300">
+    <html lang="en" className={`${dmSans.variable} ${bricolageGrotesque.variable} ${theme === 'dark' ? 'dark' : ''}`} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
+      <body className="antialiased bg-background text-foreground transition-colors duration-200">
         <AppThemeProvider initialTheme={theme}>
           <ArtisticBackground />
           <div className="relative flex flex-col min-h-screen">

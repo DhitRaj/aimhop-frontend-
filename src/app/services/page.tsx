@@ -4,24 +4,13 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageHero } from "@/components/PageHero";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { Shield, Camera, Users, Building2, Paintbrush as Broom, Phone, CheckCircle2, Zap, ArrowRight, Server, ShieldCheck, Cpu, Activity, Landmark, Hospital } from "lucide-react";
+import { Shield, Camera, Users, Building2, CheckCircle, ArrowRight, Phone, Landmark, Hospital } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { serviceAPI, settingsAPI, bannerAPI } from "@/lib/api";
 import SafeImage from "@/components/SafeImage";
 import { getMediaUrl } from "@/lib/utils";
-import { ServiceSkeleton } from "@/components/Skeleton";
 import { useSync } from "@/hooks/useSync";
-
-
-const IconMap: any = {
-  Shield: <Shield className="w-6 h-6" />,
-  Camera: <Camera className="w-6 h-6" />,
-  Users: <Users className="w-6 h-6" />,
-  Building2: <Building2 className="w-6 h-6" />,
-  Broom: <Broom className="w-6 h-6" />,
-  Server: <Server className="w-6 h-6" />,
-};
 
 export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
@@ -52,15 +41,12 @@ export default function ServicesPage() {
 
   useSync(fetchData, 20000);
 
-
   const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
-  const heroTitle = banner?.title || "Security Services";
-  const heroSubtitle = banner?.subtitle || "Elite protection tailored for your specific environment and assets.";
-
-  // Removed the full page loading spinner to show skeletons inside the layout instead
+  const heroTitle = banner?.title || "Our Security Services";
+  const heroSubtitle = banner?.subtitle || "Comprehensive protection solutions tailored for your business needs";
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-[#FAFAF8] dark:bg-[#0a0a0b] min-h-screen transition-colors duration-200">
       <Navbar />
       <main className="pb-32">
         <PageHero
@@ -69,92 +55,85 @@ export default function ServicesPage() {
           backgroundImage={heroImg}
         />
 
-        <div className="container-pad">
-          <Breadcrumb title="Our Capabilities" />
+        <div className="max-w-[1240px] mx-auto px-8 md:px-12">
+          <Breadcrumb title="Our Services" />
 
-          {/* Services Grid Section */}
-          <div className="space-y-24">
-            <div className="flex flex-col md:flex-row justify-between items-end gap-8">
-              <div className="space-y-6">
-                <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.3em] text-[10px] opacity-60">
-                  <Activity size={16} />
-                  <span>Elite Portfolio</span>
-                </div>
-                <h2 className="text-5xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
-                  Discipline <br />
-                  <span className="gradient-text">Engineered.</span>
-                </h2>
-              </div>
-              <p className="text-muted-foreground max-w-md text-lg font-medium leading-relaxed border-l-2 border-primary/20 pl-8 italic">
-                Military-grade protocols meeting modern innovation. We don't just secure — we protect with foresight.
-              </p>
+          {/* Intro Section */}
+          <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
+            <div className="space-y-4">
+              <div className="text-[12px] font-bold tracking-[1.2px] uppercase text-[#3daa5e] mb-3">What We Offer</div>
+              <h2 className="font-['Bricolage_Grotesque',sans-serif] text-[clamp(28px,4vw,42px)] font-extrabold tracking-[-1.5px] leading-[1.12] text-[#1A1A18] dark:text-[#f8fafc] max-w-[560px] transition-colors duration-200">
+                Complete security solutions for every need
+              </h2>
             </div>
+            <p className="text-[16.5px] text-[#6B7068] dark:text-[#94a3b8] max-w-md leading-[1.7] transition-colors duration-200">
+              From trained security personnel to advanced surveillance systems — we provide end-to-end protection.
+            </p>
+          </div>
 
-            {loading ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <ServiceSkeleton key={i} />
-                ))}
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                {services.map((s: any, idx: number) => (
+          {/* Services Grid */}
+          {loading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] p-8 h-[400px] animate-pulse transition-colors duration-200">
+                  <div className="w-full h-48 bg-[#F1F5F9] dark:bg-[#1e1e24] rounded-[14px] mb-6"></div>
+                  <div className="h-4 bg-[#F1F5F9] dark:bg-[#1e1e24] rounded mb-3"></div>
+                  <div className="h-3 bg-[#F1F5F9] dark:bg-[#1e1e24] rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((s: any) => (
                 <div 
                   key={s._id} 
-                  className="group bg-card border border-border rounded-[3rem] overflow-hidden card-hover flex flex-col"
-                  style={{ animationDelay: `${idx * 100}ms` }}
+                  className="bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] overflow-hidden hover:shadow-[0_8px_48px_rgba(0,0,0,0.10)] dark:hover:shadow-[0_8px_48px_rgba(92,198,122,.08)] hover:-translate-y-1 transition-all duration-200 flex flex-col"
                 >
-                  <div className="relative h-72 overflow-hidden">
+                  <div className="relative h-56 overflow-hidden">
                     {s.image ? (
                       <SafeImage
                         src={getMediaUrl(s.image)}
                         alt={s.title}
                         fill
-                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                       />
                     ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center text-primary/20">
-                        <Shield size={80} />
+                      <div className="w-full h-full bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] flex items-center justify-center transition-colors duration-200">
+                        <Shield size={64} className="text-[#5CC67A]/50" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute top-6 left-6">
-                      <span className="px-4 py-2 bg-background/80 backdrop-blur-md border border-border rounded-full text-[10px] font-black uppercase tracking-widest text-foreground">
+                    <div className="absolute top-4 left-4">
+                      <span className="px-3 py-1.5 bg-white/90 dark:bg-[#111113]/90 backdrop-blur-sm border border-[#E8E8E4] dark:border-[#1e1e24] rounded-full text-[11px] font-bold tracking-[0.8px] uppercase text-[#3daa5e] transition-colors duration-200">
                         {s.category || 'Security'}
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-10 flex flex-col flex-grow space-y-8">
-                    <div className="space-y-4">
-                      <h3 className="text-2xl font-black tracking-tighter uppercase leading-tight group-hover:text-primary transition-colors">
-                        {s.title}
-                      </h3>
-                      <p className="text-sm font-medium text-muted-foreground leading-relaxed line-clamp-3">
-                        {s.description}
-                      </p>
-                    </div>
+                  <div className="p-6 flex flex-col flex-grow space-y-4">
+                    <h3 className="font-['Bricolage_Grotesque',sans-serif] text-[18px] font-bold text-[#1A1A18] dark:text-[#f8fafc] hover:text-[#5CC67A] transition-colors duration-200">
+                      {s.title}
+                    </h3>
+                    <p className="text-[14px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.65] line-clamp-3 transition-colors duration-200">
+                      {s.description}
+                    </p>
 
-                    <div className="space-y-4">
-                      {s.features && Array.isArray(s.features) && s.features.slice(0, 3).map((f: string) => (
-                        <div key={f} className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 group-hover:text-foreground transition-colors">
-                          <CheckCircle2 size={16} className="text-primary shrink-0" />
-                          {f}
-                        </div>
-                      ))}
-                    </div>
+                    {s.features && Array.isArray(s.features) && s.features.length > 0 && (
+                      <div className="space-y-2 pt-2">
+                        {s.features.slice(0, 3).map((f: string, idx: number) => (
+                          <div key={idx} className="flex items-center gap-2 text-[13px] text-[#6B7068] dark:text-[#94a3b8] transition-colors duration-200">
+                            <CheckCircle size={14} className="text-[#5CC67A] shrink-0" />
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                    <div className="mt-auto pt-8 border-t border-border">
+                    <div className="mt-auto pt-4 border-t border-[#E8E8E4] dark:border-[#1e1e24] transition-colors duration-200">
                       <Link 
                         href="/contact" 
-                        className="flex items-center justify-between group/btn"
+                        className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#5CC67A] hover:gap-3 transition-all"
                       >
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover/btn:translate-x-2 transition-transform">
-                          Engage Protection
-                        </span>
-                        <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center group-hover/btn:bg-primary group-hover/btn:border-primary group-hover/btn:text-white transition-all">
-                          <ArrowRight size={16} />
-                        </div>
+                        Get Quote <ArrowRight size={14} />
                       </Link>
                     </div>
                   </div>
@@ -163,68 +142,92 @@ export default function ServicesPage() {
             </div>
           )}
 
-            {/* SECTOR SPECIALIZATION - High Content Section */}
-            <div className="pt-24 space-y-20">
-               <div className="max-w-3xl space-y-6">
-                  <h3 className="text-[11px] font-black tracking-[0.4em] uppercase text-primary">Mission Versatility</h3>
-                  <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-[0.9]">
-                     Sector-Specific <br />
-                     <span className="gradient-text">Protection Units.</span>
-                  </h2>
-               </div>
-
-               <div className="grid md:grid-cols-2 gap-8">
-                  {[
-                    { t: "Financial & Banking", d: "High-alert guarding for ATMs, cash-in-transit, and bank branches with 100% protocol adherence.", i: <Landmark className="w-8 h-8" /> },
-                    { t: "Healthcare Facilities", d: "Sensitive area management, patient safety protocols, and 24/7 entry point control for hospitals.", i: <Hospital className="w-8 h-8" /> },
-                    { t: "Industrial & Manufacturing", d: "Asset protection, perimeter defense, and material movement monitoring for factories and plants.", i: <Building2 className="w-8 h-8" /> },
-                    { t: "Retail & Residential", d: "Loss prevention for malls and elite society guarding with focus on courtesy and vigilance.", i: <Users className="w-8 h-8" /> },
-                  ].map(sector => (
-                    <div key={sector.t} className="p-10 bg-card border border-border rounded-[3.5rem] card-hover flex gap-10 items-center group">
-                       <div className="w-20 h-20 shrink-0 rounded-[1.5rem] bg-muted flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-xl">
-                          {sector.i}
-                       </div>
-                       <div className="space-y-2">
-                          <h4 className="text-xl font-black uppercase tracking-tight">{sector.t}</h4>
-                          <p className="text-sm font-medium text-muted-foreground leading-relaxed">{sector.d}</p>
-                       </div>
-                    </div>
-                  ))}
-               </div>
+          {/* Sector Specialization */}
+          <div className="mt-32 space-y-12">
+            <div className="max-w-3xl space-y-4">
+              <div className="text-[12px] font-bold tracking-[1.2px] uppercase text-[#3daa5e]">Industry Expertise</div>
+              <h2 className="font-['Bricolage_Grotesque',sans-serif] text-[clamp(28px,4vw,42px)] font-extrabold tracking-[-1.5px] leading-[1.12] text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">
+                Specialized security for every sector
+              </h2>
+              <p className="text-[16.5px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.7] transition-colors duration-200">
+                We understand that different industries have unique security requirements. Our team is trained to handle sector-specific challenges.
+              </p>
             </div>
 
-            {/* CTA Spotlight */}
-            <div className="relative p-16 md:p-24 rounded-[4rem] overflow-hidden bg-primary shadow-2xl shadow-primary/20">
-              <Shield className="absolute -right-24 -bottom-24 w-[30rem] h-[30rem] text-white/5 rotate-12" />
-              <div className="relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-                <div className="space-y-10">
-                  <div className="inline-flex items-center gap-4 px-6 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest">
-                    <Zap size={16} className="fill-current" />
-                    <span>Free Vulnerability Assessment</span>
+            <div className="grid md:grid-cols-2 gap-6">
+              {[
+                { 
+                  title: "Financial & Banking", 
+                  desc: "ATM security, cash-in-transit protection, and bank branch guarding with strict protocol adherence.", 
+                  icon: <Landmark className="w-8 h-8" /> 
+                },
+                { 
+                  title: "Healthcare Facilities", 
+                  desc: "Hospital security, patient safety management, and 24/7 entry point monitoring.", 
+                  icon: <Hospital className="w-8 h-8" /> 
+                },
+                { 
+                  title: "Industrial & Manufacturing", 
+                  desc: "Factory security, asset protection, perimeter defense, and material movement monitoring.", 
+                  icon: <Building2 className="w-8 h-8" /> 
+                },
+                { 
+                  title: "Retail & Residential", 
+                  desc: "Mall security, loss prevention, residential society guarding with focus on courtesy.", 
+                  icon: <Users className="w-8 h-8" /> 
+                },
+              ].map((sector, idx) => (
+                <div 
+                  key={idx} 
+                  className="p-8 bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] hover:shadow-[0_4px_28px_rgba(92,198,122,.12)] dark:hover:shadow-[0_4px_28px_rgba(92,198,122,.08)] hover:-translate-y-1 transition-all duration-200 flex gap-6 items-start"
+                >
+                  <div className="w-16 h-16 shrink-0 rounded-[14px] bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] flex items-center justify-center text-[#5CC67A] transition-colors duration-200">
+                    {sector.icon}
                   </div>
-                  <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-[0.85]">
-                    Secure Your <br />
-                    <span className="text-white/40">Domain Today.</span>
-                  </h2>
-                  <p className="text-xl text-white/70 font-medium leading-relaxed max-w-xl">
-                    Our strategic audit program uncovers hidden risks before they manifest. Deploy elite protection with AimHop.
+                  <div className="space-y-2">
+                    <h4 className="font-['Bricolage_Grotesque',sans-serif] text-[18px] font-bold text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">{sector.title}</h4>
+                    <p className="text-[14px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.65] transition-colors duration-200">{sector.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="mt-32 relative p-12 md:p-20 rounded-[32px] overflow-hidden bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] transition-colors duration-200">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_500px_400px_at_60%_50%,rgba(92,198,122,.15)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse_500px_400px_at_60%_50%,rgba(92,198,122,.08)_0%,transparent_70%)] transition-colors duration-200" />
+            <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 dark:bg-[#111113]/60 border border-[#5CC67A]/20 dark:border-[#5CC67A]/10 text-[#3daa5e] text-[11px] font-bold tracking-[0.8px] uppercase transition-colors duration-200">
+                  <CheckCircle size={14} />
+                  Free Security Assessment
+                </div>
+                <h2 className="font-['Bricolage_Grotesque',sans-serif] text-[clamp(32px,5vw,52px)] font-extrabold tracking-[-1.5px] leading-[1.1] text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">
+                  Ready to secure your business?
+                </h2>
+                <p className="text-[17px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.7] max-w-xl transition-colors duration-200">
+                  Get a customized security plan and quote for your facility. Our team is available 24/7 to assist you.
+                </p>
+                <Link 
+                  href="/contact" 
+                  className="inline-flex items-center justify-center gap-2 bg-[#5CC67A] text-white font-semibold text-base px-8 py-4 rounded-[12px] hover:bg-[#3daa5e] transition-all hover:-translate-y-0.5 shadow-[0_4px_18px_rgba(92,198,122,.35)]"
+                >
+                  Request Free Assessment <ArrowRight size={18} />
+                </Link>
+              </div>
+              <div className="bg-white/60 dark:bg-[#111113]/60 backdrop-blur-sm p-8 rounded-[24px] border border-white/40 dark:border-[#1e1e24]/40 space-y-6 transition-colors duration-200">
+                <div className="w-16 h-16 bg-[#5CC67A] rounded-[16px] flex items-center justify-center text-white shadow-lg">
+                  <Phone size={28} />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[11px] font-bold text-[#6B7068] dark:text-[#94a3b8] uppercase tracking-[0.3em] transition-colors duration-200">24/7 Support Line</p>
+                  <p className="font-['Bricolage_Grotesque',sans-serif] text-[32px] font-extrabold text-[#1A1A18] dark:text-[#f8fafc] tracking-[-1px] transition-colors duration-200">
+                    {settings?.contactPhone || '+91 91513 85320'}
                   </p>
-                  <Link href="/contact" className="inline-flex items-center gap-4 px-12 py-6 bg-white text-primary rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] hover:scale-105 transition-transform shadow-2xl">
-                    Initiate Audit <ArrowRight size={18} />
-                  </Link>
                 </div>
-                <div className="bg-white/10 backdrop-blur-2xl p-12 rounded-[3.5rem] border border-white/10 space-y-8">
-                   <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-primary shadow-2xl">
-                      <Phone size={32} />
-                   </div>
-                   <div className="space-y-2">
-                      <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em]">24/7 Strategic Command</p>
-                      <p className="text-4xl font-black text-white tracking-tighter uppercase">+91 91513 85320</p>
-                   </div>
-                   <p className="text-sm font-medium text-white/60 leading-relaxed uppercase tracking-widest pt-6 border-t border-white/10">
-                      Rapid Response Team Active. <br /> Standing by for deployment.
-                   </p>
-                </div>
+                <p className="text-[14px] text-[#6B7068] dark:text-[#94a3b8] leading-relaxed pt-4 border-t border-[#E8E8E4] dark:border-[#1e1e24] transition-colors duration-200">
+                  Our security experts are standing by to help you choose the right protection plan.
+                </p>
               </div>
             </div>
           </div>
@@ -235,5 +238,3 @@ export default function ServicesPage() {
     </div>
   );
 }
-
-

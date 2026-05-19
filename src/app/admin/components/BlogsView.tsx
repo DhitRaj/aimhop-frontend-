@@ -10,8 +10,9 @@ import { blogAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
 import SafeImage from "@/components/SafeImage";
 import { Blog } from "../types";
+import { Button } from "@/components/ui/Button";
 
-export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => void }) {
+export function BlogsView({ blogs, refreshAction }: { blogs: Blog[], refreshAction: () => void }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Blog | Partial<Blog> | null>(null);
   const [loading, setLoading] = useState(false);
@@ -50,7 +51,7 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
       : await blogAPI.create(formData);
 
     if (!error) {
-      refresh();
+      refreshAction();
       resetForm();
     } else {
       alert(error);
@@ -61,7 +62,7 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this blog post?")) {
       await blogAPI.delete(id);
-      refresh();
+      refreshAction();
     }
   };
 
@@ -71,7 +72,7 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
     <div className="space-y-10 text-left">
       
       {/* Search & Actions */}
-      <div className="flex flex-col md:flex-row gap-6 items-center justify-between bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col md:flex-row gap-6 items-center justify-between bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
          <div className="relative w-full md:max-w-md transition-all">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input 
@@ -79,31 +80,30 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
               placeholder="Search blog posts..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-xl pl-12 pr-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-900 dark:text-white"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] outline-none focus:ring-2 focus:ring-slate-200 transition-all text-slate-900 placeholder:text-slate-300"
             />
          </div>
-         <button 
+         <Button 
            onClick={() => handleOpenModal()}
-           className="w-full md:w-auto bg-indigo-600 text-white px-8 h-12 rounded-xl text-[10px] font-bold flex items-center justify-center gap-2 hover:bg-indigo-500 transition-all uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20"
          >
             <Plus size={16} strokeWidth={2.5} /> Add New Post
-         </button>
+         </Button>
       </div>
 
       {/* Posts Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
          {filtered.map(blog => (
-           <div key={blog._id} className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-slate-200 dark:hover:border-slate-700 transition-all">
-              <div className="aspect-video relative bg-slate-50 dark:bg-slate-950 overflow-hidden">
+           <div key={blog._id} className="group bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-slate-200 transition-all">
+              <div className="aspect-video relative bg-slate-50 overflow-hidden">
                 {blog.image || blog.thumbnail ? (
                   <SafeImage 
-                    src={getMediaUrl(blog.image || blog.thumbnail) + `?t=${new Date(blog.updatedAt || blog.createdAt).getTime()}`} 
+                    src={getMediaUrl(blog.image || blog.thumbnail) + `?t=${new Date(blog.createdAt).getTime()}`} 
                     fill
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                     alt={blog.title} 
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-200 dark:text-slate-800 group-hover:scale-110 transition-transform duration-700"><Layout size={40} /></div>
+                  <div className="w-full h-full flex items-center justify-center text-slate-200 group-hover:scale-110 transition-transform duration-700"><Layout size={40} /></div>
                 )}
                 <div className="absolute top-4 left-4">
                    <span className="px-3 py-1 rounded bg-slate-900/90 backdrop-blur-md text-[9px] font-bold text-white uppercase tracking-widest shadow-lg">
@@ -113,33 +113,23 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
               </div>
 
               <div className="p-8 flex-1 flex flex-col">
-                 <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-[9px] font-bold mb-4 uppercase tracking-[0.1em]">
+                 <div className="flex items-center gap-2 text-emerald-600 text-[9px] font-bold mb-4 uppercase tracking-[0.1em]">
                     <Calendar size={12} /> {new Date(blog.createdAt).toLocaleDateString()}
                  </div>
-                 <h4 className="text-base font-bold text-slate-900 dark:text-white mb-6 line-clamp-2 leading-snug tracking-tight">
+                 <h4 className="text-base font-bold text-slate-900 mb-6 line-clamp-2 leading-snug tracking-tight">
                    {blog.title}
                  </h4>
                  
-                 <div className="mt-auto pt-6 flex items-center justify-between border-t border-slate-50 dark:border-slate-800/50">
+                 <div className="mt-auto pt-6 flex items-center justify-between border-t border-slate-50">
                     <div className="flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-[10px] font-bold uppercase">
+                       <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-[10px] font-bold uppercase">
                           {blog.author?.charAt(0) || 'A'}
                        </div>
                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{blog.author || 'Admin'}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                       <button 
-                         onClick={() => handleOpenModal(blog)} 
-                         className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 transition-all"
-                       >
-                          <Edit2 size={14} />
-                       </button>
-                       <button 
-                         onClick={() => handleDelete(blog._id)} 
-                         className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-500 transition-all"
-                       >
-                          <Trash2 size={14} />
-                       </button>
+                    <div className="flex items-center gap-1.5">
+                       <Button variant="secondary" size="icon-sm" onClick={() => handleOpenModal(blog)}><Edit2 size={14} /></Button>
+                       <Button variant="danger" size="icon-sm" onClick={() => handleDelete(blog._id)}><Trash2 size={14} /></Button>
                     </div>
                  </div>
               </div>
@@ -147,8 +137,8 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
          ))}
          
          {filtered.length === 0 && (
-           <div className="col-span-full py-32 rounded-2xl border-2 border-dashed border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center text-center">
-              <FileText size={48} className="text-slate-200 dark:text-slate-800 mb-6" />
+           <div className="col-span-full py-32 rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-center">
+              <FileText size={48} className="text-slate-200 mb-6" />
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">No blog posts found</p>
            </div>
          )}
@@ -164,9 +154,7 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
                  <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">
                     {editing._id ? 'Edit Blog Post' : 'Create New Post'}
                  </h2>
-                 <button onClick={resetForm} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all">
-                    <X size={16} />
-                 </button>
+                 <Button variant="secondary" size="icon-sm" onClick={resetForm}><X size={16} /></Button>
               </div>
 
               <form onSubmit={handleSave} className="flex-1 overflow-y-auto custom-scrollbar">
@@ -249,15 +237,8 @@ export function BlogsView({ blogs, refresh }: { blogs: Blog[], refresh: () => vo
                  </div>
 
                  <div className="px-10 py-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-end gap-4 rounded-b-2xl">
-                    <button onClick={resetForm} type="button" className="px-6 h-12 text-[10px] font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all uppercase tracking-widest">Cancel</button>
-                     <button 
-                       disabled={loading} 
-                       type="submit" 
-                       className="bg-indigo-600 text-white px-10 h-12 rounded-xl text-[10px] font-bold flex items-center gap-3 hover:bg-indigo-500 transition-all uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20"
-                     >
-                       {loading && <Loader2 size={14} className="animate-spin" />}
-                       {loading ? 'Saving...' : (editing._id ? 'Save Changes' : 'Publish Post')}
-                    </button>
+                    <Button variant="secondary" type="button" onClick={resetForm}>Cancel</Button>
+                     <Button variant="primary" disabled={loading} type="submit">{loading && <Loader2 size={14} className="animate-spin" />}{loading ? 'Saving...' : (editing._id ? 'Save Changes' : 'Publish Post')}</Button>
                  </div>
               </form>
            </div>

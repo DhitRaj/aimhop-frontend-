@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import { Contact } from "../types";
+import { Button } from "@/components/ui/Button";
 import { 
   Mail, 
   Trash2, 
   Loader2, 
   Search, 
   PhoneCall, 
-  Send
+  Send,
+  ChevronRight,
+  ChevronLeft,
+  X
 } from "lucide-react";
 import { contactAPI } from "@/lib/api";
 
@@ -17,13 +21,28 @@ export function MessagesView({ contacts: initialContacts }: { contacts: Contact[
   const [selected, setSelected] = useState<Contact | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const fetchPage = async (p: number) => {
+    setLoading(true);
+    const { data, total: totalCount, totalPages: pages } = await contactAPI.getAll(p, 10);
+    if (data) {
+      setContacts(data as Contact[]);
+      setTotal(totalCount || 0);
+      setTotalPages(pages || 1);
+    }
+    setLoading(false);
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this message?')) return;
     setDeleting(id);
     const { error } = await contactAPI.delete(id);
     if (!error) {
-      setContacts(prev => prev.filter(c => c._id !== id));
+      fetchPage(page);
       if (selected?._id === id) setSelected(null);
     }
     setDeleting(null);
@@ -37,9 +56,14 @@ export function MessagesView({ contacts: initialContacts }: { contacts: Contact[
   return (
     <div className="grid lg:grid-cols-3 gap-6">
       {/* Messages List */}
-      <div className="lg:col-span-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[600px]">
+      <div className="lg:col-span-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[650px] relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white/50 z-20 flex items-center justify-center backdrop-blur-[1px]">
+            <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+          </div>
+        )}
         <div className="p-6 border-b border-slate-200 bg-slate-50/50">
-          <h3 className="font-bold text-sm text-slate-900 uppercase tracking-widest mb-4">Inquiries ({contacts.length})</h3>
+          <h3 className="font-bold text-sm text-slate-900 uppercase tracking-widest mb-4">Inquiries (Total: {total})</h3>
           
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
@@ -48,7 +72,7 @@ export function MessagesView({ contacts: initialContacts }: { contacts: Contact[
               placeholder="Search by name..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all placeholder:text-slate-400" 
+              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder:text-slate-400" 
             />
           </div>
         </div>
@@ -58,11 +82,11 @@ export function MessagesView({ contacts: initialContacts }: { contacts: Contact[
             <button
               key={msg._id}
               onClick={() => setSelected(msg)}
-              className={`w-full text-left px-6 py-5 hover:bg-slate-50 transition-all border-l-4 ${selected?._id === msg._id ? "bg-amber-50/50 border-l-amber-600" : "border-l-transparent"}`}
+              className={`w-full text-left px-6 py-5 hover:bg-slate-50 transition-all border-l-4 ${selected?._id === msg._id ? "bg-emerald-50/50 border-l-emerald-600" : "border-l-transparent"}`}
             >
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start justify-start mb-2">
                 <span className="font-bold text-slate-900 text-sm">{msg.name}</span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter whitespace-nowrap ml-2">{new Date(msg.createdAt).toLocaleDateString()}</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter whitespace-nowrap ml-auto">{new Date(msg.createdAt).toLocaleDateString()}</span>
               </div>
               <p className="text-xs font-semibold text-slate-600 mb-1 truncate uppercase tracking-tighter">{msg.subject}</p>
               <p className="text-xs text-slate-500 line-clamp-1 font-medium italic opacity-80">{msg.message}</p>
@@ -78,6 +102,15 @@ export function MessagesView({ contacts: initialContacts }: { contacts: Contact[
             </div>
           )}
         </div>
+
+        {/* Pagination bar for messages list */}
+        <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+           <span className="text-[9px] font-bold text-slate-400 uppercase">{page} / {totalPages}</span>
+           <div className="flex gap-1">
+             <Button variant="secondary" size="icon-sm" disabled={page === 1 || loading} onClick={() => { const p = page - 1; setPage(p); fetchPage(p); }}><ChevronLeft size={16} /></Button>
+             <Button variant="primary" size="icon-sm" disabled={page === totalPages || loading} onClick={() => { const p = page + 1; setPage(p); fetchPage(p); }}><ChevronRight size={16} /></Button>
+           </div>
+        </div>
       </div>
 
       {/* Message Content */}
@@ -89,19 +122,13 @@ export function MessagesView({ contacts: initialContacts }: { contacts: Contact[
                <div>
                   <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{selected.name}</h3>
                   <div className="flex items-center gap-3 mt-2">
-                    <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded uppercase tracking-widest">
+                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded uppercase tracking-widest">
                       {new Date(selected.createdAt).toLocaleDateString()} at {new Date(selected.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                </div>
                
-               <button
-                 onClick={() => handleDelete(selected._id)}
-                 disabled={deleting === selected._id}
-                 className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50"
-               >
-                  {deleting === selected._id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
-               </button>
+               <Button variant="danger" size="icon-sm" onClick={() => handleDelete(selected._id)} disabled={deleting === selected._id}>{deleting === selected._id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}</Button>
             </div>
 
             {/* Contact Info */}

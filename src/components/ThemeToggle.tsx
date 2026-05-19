@@ -15,25 +15,24 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+      <div className="w-10 h-10 rounded-[10px] bg-[#F1F5F9] animate-pulse" />
     )
   }
 
+  const isDark = theme === "dark"
+
   return (
     <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden"
-      aria-label="Toggle theme"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="relative w-10 h-10 flex items-center justify-center rounded-[10px] bg-[#FAFAF8] dark:bg-[#1e1e24] border-[1.5px] border-[#E8E8E4] dark:border-[#2a2a32] hover:border-[#5CC67A] dark:hover:border-[#5CC67A] hover:bg-[#E8F8ED] dark:hover:bg-[#1e293b] transition-all duration-200 group"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      <div className="relative w-6 h-6">
-        <Sun 
-          className="absolute inset-0 h-6 w-6 rotate-0 scale-100 transition-all duration-500 dark:-rotate-90 dark:scale-0 text-blue-600" 
-        />
-        <Moon 
-          className="absolute inset-0 h-6 w-6 rotate-90 scale-0 transition-all duration-500 dark:rotate-0 dark:scale-100 text-amber-500" 
-        />
-      </div>
-      <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/5 dark:group-hover:bg-amber-500/5 transition-colors" />
+      {isDark ? (
+        <Moon className="h-[18px] w-[18px] text-[#94a3b8] group-hover:text-[#5CC67A] transition-colors duration-200" />
+      ) : (
+        <Sun className="h-[18px] w-[18px] text-[#6B7068] group-hover:text-[#FF8C47] transition-colors duration-200" />
+      )}
     </button>
   )
 }

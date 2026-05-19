@@ -26,6 +26,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: `Unknown tag: ${tag}` }, { status: 400 });
   }
 
-  revalidateTag(tag);
+  revalidateTag(tag, 'fetch');
   return NextResponse.json({ revalidated: true, tag, ts: Date.now() });
 }

@@ -18,8 +18,9 @@ import {
 import { clientAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
 import { Client } from "../types";
+import { Button } from "@/components/ui/Button";
 
-export function ClientsView({ clients, refresh }: { clients: Client[], refresh: () => void }) {
+export function ClientsView({ clients, refreshAction }: { clients: Client[], refreshAction: () => void }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [formData, setFormData] = useState({ name: '', industry: '', order: 0 });
@@ -62,7 +63,7 @@ export function ClientsView({ clients, refresh }: { clients: Client[], refresh: 
       : await clientAPI.create(data);
       
     if (!res.error) {
-      refresh();
+      refreshAction();
       resetForm();
     }
     setLoading(false);
@@ -71,7 +72,7 @@ export function ClientsView({ clients, refresh }: { clients: Client[], refresh: 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this client?')) {
       await clientAPI.delete(id);
-      refresh();
+      refreshAction();
     }
   };
 
@@ -80,7 +81,7 @@ export function ClientsView({ clients, refresh }: { clients: Client[], refresh: 
   return (
     <div className="space-y-8 text-left">
       {/* Search & Actions Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-950 p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
          <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
             <input 
@@ -88,45 +89,50 @@ export function ClientsView({ clients, refresh }: { clients: Client[], refresh: 
                placeholder="Search by company name..." 
                value={search}
                onChange={e => setSearch(e.target.value)}
-               className="w-full bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 rounded-lg pl-12 pr-4 py-3 h-11 text-xs font-bold outline-none focus:ring-1 focus:ring-slate-200 transition-all text-slate-900 dark:text-white placeholder:text-slate-300"
+               className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-12 pr-4 py-3 h-11 text-xs font-bold outline-none focus:ring-1 focus:ring-slate-200 transition-all text-slate-900 placeholder:text-slate-300"
             />
          </div>
-         <button 
+         <Button 
             onClick={() => { resetForm(); setModalOpen(true); }}
-            className="w-full sm:w-auto bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 h-11 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-sm"
+            variant="primary"
+            size="md"
+            className="w-full sm:w-auto text-[10px] uppercase tracking-widest"
+            leftIcon={<Plus size={14} />}
          >
-            <Plus size={14} /> Add New Client
-         </button>
+            Add New Client
+         </Button>
       </div>
 
       {/* Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
          {filtered.map(c => (
-            <div key={c._id} className="group bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center text-center hover:border-slate-300 dark:hover:border-slate-700 transition-all relative">
-               <div className="w-20 h-20 mb-6 bg-slate-50 dark:bg-slate-900 rounded-xl flex items-center justify-center p-4 border dark:border-slate-800 shadow-sm overflow-hidden">
+            <div key={c._id} className="group bg-white rounded-lg border border-slate-200 p-8 flex flex-col items-center text-center hover:border-slate-300 transition-all relative">
+               <div className="w-20 h-20 mb-6 bg-slate-50 rounded-xl flex items-center justify-center p-4 border shadow-sm overflow-hidden">
                   {c.logo ? (
                      <img src={getMediaUrl(c.logo)} className="w-full h-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" alt={c.name} />
                   ) : (
-                     <Building2 size={32} className="text-slate-200 dark:text-slate-800" />
+                     <Building2 size={32} className="text-slate-200" />
                   )}
                </div>
 
-               <h4 className="font-bold text-slate-900 dark:text-white text-[11px] uppercase tracking-widest line-clamp-1">{c.name}</h4>
+               <h4 className="font-bold text-slate-900 text-[11px] uppercase tracking-widest line-clamp-1">{c.name}</h4>
                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2 whitespace-nowrap overflow-hidden text-ellipsis w-full px-2">{c.industry || 'General'}</p>
 
                <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                  <button 
+                  <Button 
+                    variant="secondary"
+                    size="icon-sm"
                     onClick={() => handleEdit(c)}
-                    className="p-2 text-slate-400 hover:text-indigo-600 bg-white dark:bg-slate-950 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800"
                   >
                     <Edit2 size={12} />
-                  </button>
-                  <button 
+                  </Button>
+                  <Button 
+                    variant="danger"
+                    size="icon-sm"
                     onClick={() => handleDelete(c._id)}
-                    className="p-2 text-slate-400 hover:text-rose-600 bg-white dark:bg-slate-950 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800"
                   >
                     <Trash2 size={12} />
-                  </button>
+                  </Button>
                </div>
             </div>
          ))}
@@ -149,9 +155,7 @@ export function ClientsView({ clients, refresh }: { clients: Client[], refresh: 
                  <h2 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">
                     {editing ? 'Edit Client' : 'Add New Client'}
                  </h2>
-                 <button onClick={resetForm} className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                    <X size={18} />
-                 </button>
+                 <Button variant="secondary" size="icon-sm" onClick={resetForm}><X size={18} /></Button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-10 space-y-10 overflow-y-auto custom-scrollbar">
@@ -227,15 +231,23 @@ export function ClientsView({ clients, refresh }: { clients: Client[], refresh: 
                  </div>
 
                  <div className="pt-8 flex items-center justify-end gap-6 border-t border-slate-100 dark:border-slate-800">
-                    <button onClick={resetForm} type="button" className="text-[10px] font-bold text-slate-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-widest transition-colors">Cancel</button>
-                    <button 
-                       disabled={loading} 
+                    <Button 
+                        onClick={resetForm} 
+                        type="button" 
+                        variant="ghost"
+                        className="text-[10px] uppercase tracking-widest"
+                     >
+                        Cancel
+                     </Button>
+                    <Button 
                        type="submit" 
-                       className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 h-11 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-3 transition-opacity shadow-sm hover:opacity-90 disabled:opacity-50"
+                       variant="primary"
+                       isLoading={loading}
+                       className="text-[10px] uppercase tracking-[0.2em]"
+                       leftIcon={<Save size={12} />}
                     >
-                       {loading ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
-                       {loading ? 'Processing...' : (editing ? 'Save Changes' : 'Create Client')}
-                    </button>
+                       {editing ? 'Save Changes' : 'Create Client'}
+                    </Button>
                  </div>
               </form>
            </div>

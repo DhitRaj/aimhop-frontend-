@@ -8,6 +8,7 @@ import {
   FileText,
   TrendingUp
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export function DashboardView({ stats, latestContacts }: { stats: Stats | null, latestContacts: Contact[] }) {
   const dashboardStats = [
@@ -40,7 +41,7 @@ export function DashboardView({ stats, latestContacts }: { stats: Stats | null, 
         {dashboardStats.map((s) => (
           <div key={s.label} className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all group">
             <div className="flex items-center justify-between mb-6">
-              <div className="w-14 h-14 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 shadow-sm group-hover:bg-amber-100 transition-colors">
+              <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shadow-sm group-hover:bg-emerald-100 transition-colors">
                 <s.icon size={28} strokeWidth={1.5} />
               </div>
               <div className="text-right">
@@ -62,12 +63,12 @@ export function DashboardView({ stats, latestContacts }: { stats: Stats | null, 
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
           <h3 className="font-bold text-sm text-slate-900 uppercase tracking-widest">Recent Inquiries</h3>
-          <button className="text-[10px] font-bold text-amber-600 uppercase tracking-wider hover:text-amber-700 transition-colors">View All</button>
+          <Button variant="secondary" size="sm">View All</Button>
         </div>
         <div className="divide-y divide-slate-100">
           {latestContacts.length > 0 ? (
             latestContacts.slice(0, 8).map((contact) => (
-              <div key={contact._id} className="px-8 py-6 hover:bg-slate-50 transition-colors border-l-4 border-l-transparent hover:border-l-amber-600">
+              <div key={contact._id} className="px-8 py-6 hover:bg-slate-50 transition-colors border-l-4 border-l-transparent hover:border-l-emerald-600">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <p className="font-bold text-slate-900 text-base">{contact.name}</p>
@@ -78,7 +79,7 @@ export function DashboardView({ stats, latestContacts }: { stats: Stats | null, 
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded uppercase tracking-tighter">Subject</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded uppercase tracking-tighter">Subject</span>
                   <p className="text-sm font-semibold text-slate-700">{contact.subject}</p>
                 </div>
               </div>

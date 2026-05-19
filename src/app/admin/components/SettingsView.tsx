@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/Button";
 import { 
   Settings as SettingsIcon, 
   Image as ImageIcon, 
@@ -28,7 +29,7 @@ import { getMediaUrl } from "@/lib/utils";
 import SafeImage from "@/components/SafeImage";
 import { Settings } from "../types";
 
-export function SettingsView({ settings: initialSettings, refresh }: { settings: Settings, refresh: () => void }) {
+export function SettingsView({ settings: initialSettings, refreshAction }: { settings: Settings, refreshAction: () => void }) {
   const getDefaultFeature = (idx: number) => ({
     title: idx === 1 ? 'Experienced Staff' : idx === 2 ? 'Top-Tier Quality' : 'Affordable',
     desc: idx === 1 ? 'We have experienced professionals who can easily understand our clients requirements.' :
@@ -123,7 +124,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
         setHeroImageFile(null);
         setCctvImageFile(null);
 
-        refresh();
+        refreshAction();
       }
     } catch (err: any) {
       console.error(err);
@@ -177,15 +178,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
             ))}
           </div>
           <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-             <button 
-               type="submit"
-               form="settings-form"
-               disabled={saving}
-               className="w-full bg-amber-600 text-white h-12 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-700 transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20"
-             >
-               {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-               {saving ? 'Saving...' : 'Save Settings'}
-             </button>
+             <Button type="submit" form="settings-form" variant="primary" fullWidth isLoading={saving} leftIcon={!saving && <Save size={16} />}>Save Settings</Button>
           </div>
         </aside>
 
@@ -199,14 +192,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
                      <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">General Information</h3>
                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Manage basic website details</p>
                    </div>
-                   <button 
-                     type="submit"
-                     disabled={saving}
-                     className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20"
-                   >
-                     {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                     Save
-                   </button>
+                   <Button type="submit" variant="primary" size="sm" isLoading={saving} leftIcon={!saving && <Save size={14} />}>Save</Button>
                 </div>
                 <div className="grid md:grid-cols-2 gap-10">
                   <div className="space-y-1">
@@ -246,14 +232,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
                      <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Logo & Branding</h3>
                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Logos and website icons</p>
                    </div>
-                   <button 
-                     type="submit"
-                     disabled={saving}
-                     className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20"
-                   >
-                     {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                     Save
-                   </button>
+                   <Button type="submit" variant="primary" size="sm" isLoading={saving} leftIcon={!saving && <Save size={14} />}>Save</Button>
                 </div>
                 <div className="grid md:grid-cols-2 gap-10">
                   <div className="space-y-4">
@@ -289,14 +268,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
                      <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Homepage Features</h3>
                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Manage the top 3 highlights on home page</p>
                    </div>
-                   <button 
-                     type="submit"
-                     disabled={saving}
-                     className="bg-amber-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-amber-700 transition-all shadow-lg shadow-amber-500/20"
-                   >
-                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                     Save
-                   </button>
+                   <Button type="submit" variant="primary" size="sm" isLoading={saving} leftIcon={!saving && <Save size={14} />}>Save</Button>
                 </div>
 
                 <div className="border-b border-slate-100 dark:border-slate-800 pb-10">
@@ -425,14 +397,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
                      <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Director's Profile</h3>
                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Manage leadership message and photo</p>
                    </div>
-                   <button 
-                     type="submit"
-                     disabled={saving}
-                     className="bg-amber-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-amber-700 transition-all shadow-lg shadow-amber-500/20"
-                   >
-                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                     Save
-                   </button>
+                   <Button type="submit" variant="primary" size="sm" isLoading={saving} leftIcon={!saving && <Save size={14} />}>Save</Button>
                 </div>
                 <div className="grid md:grid-cols-[1fr_260px] gap-12">
                   <div className="space-y-10">
@@ -489,14 +454,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
                      <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Counters & Stats</h3>
                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Display success numbers on the website</p>
                    </div>
-                   <button 
-                     type="submit"
-                     disabled={saving}
-                     className="bg-amber-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-amber-700 transition-all shadow-lg shadow-amber-500/20"
-                   >
-                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                     Save
-                   </button>
+                   <Button type="submit" variant="primary" size="sm" isLoading={saving} leftIcon={!saving && <Save size={14} />}>Save</Button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {[
@@ -526,14 +484,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
                      <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Social Media Links</h3>
                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Links to your official social pages</p>
                    </div>
-                   <button 
-                     type="submit"
-                     disabled={saving}
-                     className="bg-amber-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-amber-700 transition-all shadow-lg shadow-amber-500/20"
-                   >
-                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                     Save
-                   </button>
+                   <Button type="submit" variant="primary" size="sm" isLoading={saving} leftIcon={!saving && <Save size={14} />}>Save</Button>
                 </div>
                 <div className="grid md:grid-cols-2 gap-10">
                   {['facebook', 'twitter', 'linkedin', 'instagram'].map(s => (
@@ -558,14 +509,7 @@ export function SettingsView({ settings: initialSettings, refresh }: { settings:
                      <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Feature Toggles</h3>
                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Turn on or off specific website features</p>
                    </div>
-                   <button 
-                     type="submit"
-                     disabled={saving}
-                     className="bg-amber-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-amber-700 transition-all shadow-lg shadow-amber-500/20"
-                   >
-                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                     Save
-                   </button>
+                   <Button type="submit" variant="primary" size="sm" isLoading={saving} leftIcon={!saving && <Save size={14} />}>Save</Button>
                 </div>
                 <div className="grid gap-6">
                   {[

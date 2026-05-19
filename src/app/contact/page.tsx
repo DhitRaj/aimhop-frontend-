@@ -3,17 +3,16 @@ import { Metadata } from "next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { Phone, Mail, MapPin, Clock, Shield } from "lucide-react";
-import Image from "next/image";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import { settingsAPI, bannerAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
 import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: 'Contact AimHop Security | 24/7 Security Support in Gorakhpur & PAN India',
-  description: 'Connect with AimHop Security for professional security guard services, bouncers, and facility management. Available 24/7 in Gorakhpur, Lucknow, and all major cities.',
-  keywords: 'AimHop Contact, Security Guard Service Gorakhpur, Hire Bouncers Lucknow, Best Security Agency, AimHop Customer Care',
+  title: 'Contact AimHop Security | 24/7 Security Support',
+  description: 'Connect with AimHop Security for professional security services. Available 24/7 across India.',
+  keywords: 'AimHop Contact, Security Services, Hire Security Guards, Best Security Agency',
 };
 
 async function getContactData() {
@@ -33,11 +32,11 @@ export default async function ContactPage() {
   const { settings, banner } = await getContactData();
 
   const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
-  const heroTitle = banner?.title || "Contact Us";
-  const heroSubtitle = banner?.subtitle || "We are available 24/7 — Call or message anytime";
+  const heroTitle = banner?.title || "Get In Touch";
+  const heroSubtitle = banner?.subtitle || "We're available 24/7 to assist you with your security needs";
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-[#FAFAF8] dark:bg-[#0a0a0b] min-h-screen transition-colors duration-200">
       <Navbar />
 
       <main className="pb-32">
@@ -47,62 +46,82 @@ export default async function ContactPage() {
           backgroundImage={heroImg}
         />
 
-        <div className="container-pad">
-          <Breadcrumb title="Get In Touch" />
+        <div className="max-w-[1240px] mx-auto px-8 md:px-12">
+          <Breadcrumb title="Contact Us" />
 
-          <div className="grid lg:grid-cols-2 gap-24 items-start">
+          <div className="grid lg:grid-cols-2 gap-20 items-start">
             {/* Left: Contact Info */}
-            <div className="space-y-16">
-              <div className="space-y-6">
-                <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-[0.9]">
-                  Talk to Our <br />
-                  <span className="gradient-text">Experts.</span>
+            <div className="space-y-12">
+              <div className="space-y-4">
+                <div className="text-[12px] font-bold tracking-[1.2px] uppercase text-[#3daa5e]">Get In Touch</div>
+                <h2 className="font-['Bricolage_Grotesque',sans-serif] text-[clamp(32px,5vw,52px)] font-extrabold tracking-[-1.5px] leading-[1.1] text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">
+                  Talk to our security experts
                 </h2>
-                <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-xl">
-                  Whether you need strategic guarding, electronic surveillance, or a custom security audit, our specialized team is standing by 24/7.
+                <p className="text-[17px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.7] transition-colors duration-200">
+                  Whether you need security guards, surveillance systems, or a custom security plan, our team is ready to help 24/7.
                 </p>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-8">
+              <div className="grid sm:grid-cols-2 gap-6">
                 {[
-                  { t: "Direct Line", v: settings?.contactPhone || '+91 91513 85320', i: <Phone size={24} />, desc: "24/7 Emergency Response" },
-                  { t: "Official Email", v: settings?.contactEmail || "info@aimhop.com", i: <Mail size={24} />, desc: "Quotes & Proposals" },
-                  { t: "Headquarters", v: settings?.address || "Gorakhpur, UP", i: <MapPin size={24} />, desc: "Main Operations Center" },
-                  { t: "Availability", v: "Always Open", i: <Clock size={24} />, desc: "365 Days a Year" }
-                ].map(item => (
-                  <div key={item.t} className="p-8 bg-card border border-border rounded-[2.5rem] card-hover group">
-                    <div className="w-14 h-14 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                      {item.i}
+                  { 
+                    title: "Phone", 
+                    value: settings?.contactPhone || '+91 91513 85320', 
+                    icon: <Phone size={20} />, 
+                    desc: "24/7 Support" 
+                  },
+                  { 
+                    title: "Email", 
+                    value: settings?.contactEmail || "info@aimhop.com", 
+                    icon: <Mail size={20} />, 
+                    desc: "Quick Response" 
+                  },
+                  { 
+                    title: "Location", 
+                    value: settings?.address || "Gorakhpur, UP", 
+                    icon: <MapPin size={20} />, 
+                    desc: "Head Office" 
+                  },
+                  { 
+                    title: "Hours", 
+                    value: "24/7 Available", 
+                    icon: <Clock size={20} />, 
+                    desc: "Always Open" 
+                  }
+                ].map((item, idx) => (
+                  <div key={idx} className="p-6 bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] hover:shadow-[0_4px_28px_rgba(92,198,122,.12)] dark:hover:shadow-[0_4px_28px_rgba(92,198,122,.08)] hover:-translate-y-1 transition-all duration-200">
+                    <div className="w-12 h-12 rounded-[12px] bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] flex items-center justify-center text-[#5CC67A] mb-4 transition-colors duration-200">
+                      {item.icon}
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">{item.t}</p>
-                      <p className="text-lg font-black tracking-tight leading-tight break-words">{item.v}</p>
-
-                      <p className="text-xs font-medium text-muted-foreground mt-2 opacity-60">{item.desc}</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.8px] text-[#6B7068] dark:text-[#94a3b8] transition-colors duration-200">{item.title}</p>
+                      <p className="text-[15px] font-bold text-[#1A1A18] dark:text-[#f8fafc] leading-tight break-words transition-colors duration-200">{item.value}</p>
+                      <p className="text-[12px] text-[#6B7068] dark:text-[#94a3b8] mt-1.5 transition-colors duration-200">{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="p-10 bg-primary/5 rounded-[2.5rem] border border-primary/10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
-                 <Shield className="absolute -right-8 -bottom-8 w-32 h-32 text-primary/5 group-hover:scale-110 transition-transform" />
-                 <div className="bg-primary p-5 rounded-2xl text-white shadow-xl">
-                    <Clock size={32} />
-                 </div>
-                 <div className="relative z-10 text-center md:text-left">
-                   <h5 className="font-black text-xl uppercase tracking-tighter">Instant Support Guarantee</h5>
-                   <p className="text-sm font-medium text-muted-foreground mt-1 max-w-sm">
-                      We respond to all critical security inquiries within 15 minutes.
-                   </p>
-                 </div>
+              <div className="p-8 bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] rounded-[20px] border-[1.5px] border-[#5CC67A]/20 dark:border-[#5CC67A]/10 flex items-center gap-6 transition-colors duration-200">
+                <div className="bg-[#5CC67A] p-4 rounded-[14px] text-white shadow-lg">
+                  <Clock size={28} />
+                </div>
+                <div>
+                  <h5 className="font-['Bricolage_Grotesque',sans-serif] text-[18px] font-bold text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">Quick Response Guarantee</h5>
+                  <p className="text-[14px] text-[#6B7068] dark:text-[#94a3b8] mt-1 transition-colors duration-200">
+                    We respond to all inquiries within 15 minutes during business hours.
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Right: Form */}
             <div className="lg:sticky lg:top-32">
-               <Suspense fallback={<div className="p-8 h-96 bg-card rounded-[2.5rem] animate-pulse" />}>
-                 <ContactForm />
-               </Suspense>
+              <Suspense fallback={
+                <div className="bg-white p-8 rounded-[32px] border-[1.5px] border-[#E8E8E4] h-[500px] animate-pulse"></div>
+              }>
+                <ContactForm />
+              </Suspense>
             </div>
           </div>
         </div>

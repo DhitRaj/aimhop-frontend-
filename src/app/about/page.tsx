@@ -5,12 +5,11 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { PageHero } from "@/components/PageHero";
-import { Shield, CheckCircle2, Award } from "lucide-react";
+import { Shield, CheckCircle, Award, Target, Users } from "lucide-react";
 import { settingsAPI, bannerAPI } from "@/lib/api";
-import SafeImage from "@/components/SafeImage";
 import { getMediaUrl } from "@/lib/utils";
 
-export function AboutPage() {
+export default function AboutPage() {
   const [settings, setSettings] = useState<any>(null);
   const [banner, setBanner] = useState<any>(null);
 
@@ -24,10 +23,10 @@ export function AboutPage() {
   const directorImg = getMediaUrl(settings?.directorImage);
   const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
   const heroTitle = banner?.title || "About AimHop";
-  const heroSubtitle = banner?.subtitle || "Trusted Security Partner Since 2020";
+  const heroSubtitle = banner?.subtitle || "Your trusted security partner since 2020";
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-[#FAFAF8] dark:bg-[#0a0a0b] min-h-screen transition-colors duration-200">
       <Navbar />
 
       <main className="pb-32">
@@ -37,47 +36,47 @@ export function AboutPage() {
           backgroundImage={heroImg}
         />
 
-        <div className="container-pad">
-          <Breadcrumb title="Our DNA" />
+        <div className="max-w-[1240px] mx-auto px-8 md:px-12">
+          <Breadcrumb title="About Us" />
 
-          <div className="grid lg:grid-cols-2 gap-24 items-start">
-            <div className="space-y-16">
-              <div className="space-y-6">
-                <h2 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase leading-[0.9]">
-                  Decades of <br />
-                  <span className="gradient-text">Discipline.</span>
+          <div className="grid lg:grid-cols-2 gap-20 items-start">
+            <div className="space-y-12">
+              <div className="space-y-4">
+                <div className="text-[12px] font-bold tracking-[1.2px] uppercase text-[#3daa5e]">Who We Are</div>
+                <h2 className="font-['Bricolage_Grotesque',sans-serif] text-[clamp(32px,5vw,52px)] font-extrabold tracking-[-1.5px] leading-[1.1] text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">
+                  Professional security services you can trust
                 </h2>
-                <p className="text-lg text-muted-foreground font-medium leading-relaxed">
-                  Aimhop Security Solution Private Limited is an ISO 9001:2020 Certified leading Security Service Provider established in 2020. We are defined by a singular focus: Military-grade protection delivered through modern innovation.
+                <p className="text-[17px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.7] transition-colors duration-200">
+                  AimHop Security Solutions Private Limited is an ISO 9001:2015 certified security service provider established in 2020. We specialize in providing comprehensive security solutions across India with trained professionals and modern technology.
                 </p>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-8">
-                <div className="p-10 bg-card border border-border rounded-[2.5rem] card-hover relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-6 opacity-5">
-                    <Shield className="w-24 h-24 text-primary group-hover:scale-125 transition-transform duration-500" />
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="p-8 bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] hover:shadow-[0_4px_28px_rgba(92,198,122,.12)] dark:hover:shadow-[0_4px_28px_rgba(92,198,122,.08)] hover:-translate-y-1 transition-all duration-200">
+                  <div className="w-12 h-12 rounded-[12px] bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] flex items-center justify-center text-[#5CC67A] mb-4 transition-colors duration-200">
+                    <Target size={24} />
                   </div>
-                  <h3 className="text-xl font-black tracking-tight uppercase text-primary mb-4">Our Mission</h3>
-                  <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-                    Efficient client-specific integrated security solutions at the most competitive rates. Peace of mind through total protection of assets.
+                  <h3 className="font-['Bricolage_Grotesque',sans-serif] text-[18px] font-bold text-[#1A1A18] dark:text-[#f8fafc] mb-2 transition-colors duration-200">Our Mission</h3>
+                  <p className="text-[14px] text-[#6B7068] dark:text-[#94a3b8] leading-relaxed transition-colors duration-200">
+                    To provide efficient, client-specific security solutions at competitive rates while ensuring complete peace of mind.
                   </p>
                 </div>
-                <div className="p-10 bg-card border border-border rounded-[2.5rem] card-hover relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-6 opacity-5">
-                    <CheckCircle2 className="w-24 h-24 text-primary group-hover:scale-125 transition-transform duration-500" />
+                <div className="p-8 bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] hover:shadow-[0_4px_28px_rgba(92,198,122,.12)] dark:hover:shadow-[0_4px_28px_rgba(92,198,122,.08)] hover:-translate-y-1 transition-all duration-200">
+                  <div className="w-12 h-12 rounded-[12px] bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] flex items-center justify-center text-[#5CC67A] mb-4 transition-colors duration-200">
+                    <CheckCircle size={24} />
                   </div>
-                  <h3 className="text-xl font-black tracking-tight uppercase text-primary mb-4">Our Vision</h3>
-                  <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-                    To be the most competent, reliable, and professional pan-India security solution provider in the modern era.
+                  <h3 className="font-['Bricolage_Grotesque',sans-serif] text-[18px] font-bold text-[#1A1A18] dark:text-[#f8fafc] mb-2 transition-colors duration-200">Our Vision</h3>
+                  <p className="text-[14px] text-[#6B7068] dark:text-[#94a3b8] leading-relaxed transition-colors duration-200">
+                    To be India's most reliable and professional security solution provider with pan-India presence.
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-8">
-                <h3 className="text-[11px] font-black tracking-[0.3em] uppercase opacity-30">The AimHop Edge</h3>
-                <div className="flex flex-wrap gap-4">
-                  {['Professional Staff', 'Prompt Response', 'Affordable', 'Reliable', 'Daily Reports', 'ISO Certified', 'Ex-Army Leadership'].map(feature => (
-                    <span key={feature} className="px-5 py-3 bg-muted border border-border text-foreground font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-primary hover:text-white hover:border-primary transition-all cursor-default">
+              <div className="space-y-6">
+                <h3 className="text-[12px] font-bold tracking-[1.2px] uppercase text-[#6B7068] dark:text-[#94a3b8] transition-colors duration-200">Why Choose Us</h3>
+                <div className="flex flex-wrap gap-3">
+                  {['Professional Staff', 'Quick Response', 'Affordable Rates', 'Reliable Service', 'Daily Reports', 'ISO Certified', 'Experienced Team'].map(feature => (
+                    <span key={feature} className="px-4 py-2 bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] text-[#1A1A18] dark:text-[#f8fafc] font-semibold text-[12px] rounded-[10px] hover:bg-[#E8F8ED] dark:hover:bg-[#1e3a28] hover:border-[#5CC67A] hover:text-[#3daa5e] dark:hover:text-[#7de09a] transition-all">
                       {feature}
                     </span>
                   ))}
@@ -85,28 +84,31 @@ export function AboutPage() {
               </div>
             </div>
 
-            <div className="lg:sticky lg:top-32 space-y-10">
-              <div className="bg-primary p-12 rounded-[4rem] relative overflow-hidden shadow-2xl shadow-primary/20">
-                <Shield className="absolute -right-12 -bottom-12 w-48 h-48 text-white/10" />
-                <div className="relative z-10 space-y-8">
-                  <div className="flex items-center gap-6">
-                    <div className="w-24 h-24 rounded-[2rem] border-4 border-white/20 overflow-hidden bg-white/10 backdrop-blur-md flex items-center justify-center font-black text-white text-3xl shadow-xl">
-                      {directorImg ? <img src={directorImg} alt="Director" className="w-full h-full object-cover" /> : 'OP'}
+            <div className="lg:sticky lg:top-32 space-y-8">
+              <div className="bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] p-10 rounded-[32px] border-[1.5px] border-[#5CC67A]/20 dark:border-[#5CC67A]/10 transition-colors duration-200">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-[16px] border-2 border-white/60 dark:border-[#1e1e24]/60 overflow-hidden bg-white/40 dark:bg-[#1e1e24]/40 backdrop-blur-sm flex items-center justify-center shadow-lg transition-colors duration-200">
+                      {directorImg ? (
+                        <img src={directorImg} alt="Director" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="font-['Bricolage_Grotesque',sans-serif] text-[24px] font-extrabold text-[#5CC67A]">OP</span>
+                      )}
                     </div>
                     <div>
-                       <h4 className="text-2xl font-black text-white uppercase tracking-tighter">
-                          {settings?.directorName || 'O.P. YADAV'}
-                       </h4>
-                       <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">{settings?.directorRole || 'Managing Director'}</p>
+                      <h4 className="font-['Bricolage_Grotesque',sans-serif] text-[20px] font-extrabold text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">
+                        {settings?.directorName || 'O.P. Yadav'}
+                      </h4>
+                      <p className="text-[12px] font-semibold text-[#6B7068] dark:text-[#94a3b8] transition-colors duration-200">{settings?.directorRole || 'Managing Director'}</p>
                     </div>
                   </div>
-                  <blockquote className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase">
-                    "{settings?.directorMessage || 'Our goal is to keep every Indian safe. We deliver security with discipline and integrity.'}"
+                  <blockquote className="text-[18px] font-medium text-[#1A1A18] dark:text-[#f8fafc] leading-relaxed italic transition-colors duration-200">
+                    "{settings?.directorMessage || 'Our commitment is to deliver security with discipline and integrity. We aim to keep every client safe with professional service.'}"
                   </blockquote>
-                  <div className="pt-8 border-t border-white/10">
-                    <div className="flex items-center gap-4">
-                       <Award className="w-6 h-6 text-white/40" />
-                       <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Elite Security Leadership Certified</span>
+                  <div className="pt-6 border-t border-[#5CC67A]/20 dark:border-[#5CC67A]/10">
+                    <div className="flex items-center gap-3">
+                      <Award className="w-5 h-5 text-[#5CC67A]" />
+                      <span className="text-[11px] font-bold text-[#6B7068] dark:text-[#94a3b8] uppercase tracking-[0.8px] transition-colors duration-200">ISO 9001:2015 Certified</span>
                     </div>
                   </div>
                 </div>
@@ -114,34 +116,35 @@ export function AboutPage() {
             </div>
           </div>
 
-          {/* STRATEGIC PROCESS SECTION - Increasing Content Depth */}
-          <div className="mt-40 space-y-24">
-             <div className="text-center max-w-3xl mx-auto space-y-6">
-                <h3 className="text-[11px] font-black tracking-[0.4em] uppercase text-primary">Operational Protocol</h3>
-                <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9]">
-                   Tactical <br />
-                   <span className="gradient-text">Deployment Roadmap.</span>
-                </h2>
-                <p className="text-muted-foreground font-medium text-lg">Our proven 4-stage methodology ensures zero-gap protection for every client asset.</p>
-             </div>
+          {/* Process Section */}
+          <div className="mt-32 space-y-16">
+            <div className="text-center max-w-3xl mx-auto space-y-4">
+              <div className="text-[12px] font-bold tracking-[1.2px] uppercase text-[#3daa5e]">How We Work</div>
+              <h2 className="font-['Bricolage_Grotesque',sans-serif] text-[clamp(28px,4vw,42px)] font-extrabold tracking-[-1.5px] leading-[1.12] text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">
+                Our proven process for complete security
+              </h2>
+              <p className="text-[16.5px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.7] transition-colors duration-200">
+                We follow a systematic approach to ensure your facility gets the best protection.
+              </p>
+            </div>
 
-             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {[
-                  { n: "01", t: "Intelligence Audit", d: "Ex-army specialists conduct a 360-degree vulnerability assessment of your facility." },
-                  { n: "02", t: "Custom Strategy", d: "We design a tailored security protocol integrating guarding and electronic surveillance." },
-                  { n: "03", t: "Elite Deployment", d: "ISO-certified personnel are deployed with field-ready equipment and tactical briefs." },
-                  { n: "04", t: "Command Monitoring", d: "24/7 oversight via our remote hub ensures continuous performance and rapid response." },
-                ].map((step, i) => (
-                  <div key={step.n} className="p-10 bg-card border border-border rounded-[3rem] card-hover relative overflow-hidden group">
-                     <span className="absolute -top-4 -right-4 text-8xl font-black opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500">{step.n}</span>
-                     <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-xs mb-8 shadow-xl shadow-primary/20">
-                        {step.n}
-                     </div>
-                     <h4 className="text-xl font-black uppercase tracking-tight mb-4">{step.t}</h4>
-                     <p className="text-sm text-muted-foreground font-medium leading-relaxed">{step.d}</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { num: "01", title: "Site Assessment", desc: "Our team conducts a thorough security audit of your facility to identify vulnerabilities." },
+                { num: "02", title: "Custom Plan", desc: "We design a tailored security strategy that fits your specific requirements and budget." },
+                { num: "03", title: "Deployment", desc: "Trained security personnel are deployed with proper equipment and clear instructions." },
+                { num: "04", title: "Monitoring", desc: "24/7 supervision and regular reporting ensure consistent quality and quick response." },
+              ].map((step) => (
+                <div key={step.num} className="p-8 bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] hover:shadow-[0_4px_28px_rgba(92,198,122,.12)] dark:hover:shadow-[0_4px_28px_rgba(92,198,122,.08)] hover:-translate-y-1 transition-all duration-200 relative overflow-hidden">
+                  <span className="absolute -top-6 -right-6 text-[80px] font-['Bricolage_Grotesque',sans-serif] font-extrabold text-[#5CC67A]/5 dark:text-[#5CC67A]/3 transition-colors duration-200">{step.num}</span>
+                  <div className="w-10 h-10 rounded-[10px] bg-[#5CC67A] text-white flex items-center justify-center font-['Bricolage_Grotesque',sans-serif] font-extrabold text-[14px] mb-6 shadow-lg relative z-10">
+                    {step.num}
                   </div>
-                ))}
-             </div>
+                  <h4 className="font-['Bricolage_Grotesque',sans-serif] text-[18px] font-bold text-[#1A1A18] dark:text-[#f8fafc] mb-3 transition-colors duration-200">{step.title}</h4>
+                  <p className="text-[14px] text-[#6B7068] dark:text-[#94a3b8] leading-relaxed transition-colors duration-200">{step.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>
@@ -150,5 +153,3 @@ export function AboutPage() {
     </div>
   );
 }
-
-export default AboutPage;

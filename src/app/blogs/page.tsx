@@ -9,7 +9,6 @@ import Link from "next/link";
 import { blogAPI, settingsAPI, bannerAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
 import { PageHero } from "@/components/PageHero";
-import { BlogSkeleton } from "@/components/Skeleton";
 import { useSync } from "@/hooks/useSync";
 
 export default function BlogsPage() {
@@ -41,80 +40,105 @@ export default function BlogsPage() {
 
   useSync(fetchData, 20000);
 
-
   const heroImg = getMediaUrl(banner?.image || settings?.heroImage);
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-[#FAFAF8] dark:bg-[#0a0a0b] min-h-screen transition-colors duration-200">
       <Navbar />
 
       <main className="pb-32">
         <PageHero
-          title="Security Insights"
-          subtitle="Tactical Advice, Industry Intel & Mission Updates"
+          title="Security Insights & News"
+          subtitle="Expert advice, industry updates, and safety guides from our team"
           backgroundImage={heroImg}
         />
 
-        <div className="container-pad">
-          <Breadcrumb title="Intelligence Feed" />
+        <div className="max-w-[1240px] mx-auto px-8 md:px-12">
+          <Breadcrumb title="Blog" />
+
+          {/* Intro */}
+          <div className="mb-16 max-w-3xl">
+            <div className="text-[12px] font-bold tracking-[1.2px] uppercase text-[#3daa5e] mb-3">Latest Articles</div>
+            <h2 className="font-['Bricolage_Grotesque',sans-serif] text-[clamp(28px,4vw,42px)] font-extrabold tracking-[-1.5px] leading-[1.12] text-[#1A1A18] dark:text-[#f8fafc] mb-4 transition-colors duration-200">
+              Stay informed about security trends
+            </h2>
+            <p className="text-[16.5px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.7] transition-colors duration-200">
+              Read our latest articles on security best practices, industry news, and safety tips.
+            </p>
+          </div>
 
           {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 mt-16">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <BlogSkeleton key={i} />
+                <div key={i} className="bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] overflow-hidden h-[420px] animate-pulse transition-colors duration-200">
+                  <div className="h-48 bg-[#F1F5F9] dark:bg-[#1e1e24]"></div>
+                  <div className="p-6 space-y-3">
+                    <div className="h-3 bg-[#F1F5F9] dark:bg-[#1e1e24] rounded w-1/2"></div>
+                    <div className="h-4 bg-[#F1F5F9] dark:bg-[#1e1e24] rounded"></div>
+                    <div className="h-3 bg-[#F1F5F9] dark:bg-[#1e1e24] rounded w-3/4"></div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 mt-16">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {blogs.map((blog) => (
                 <Link
                   key={blog._id}
                   href={`/blogs/${blog._id}`}
-                  className="group bg-card border border-border rounded-[3rem] overflow-hidden card-hover flex flex-col"
+                  className="group bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] overflow-hidden hover:shadow-[0_8px_48px_rgba(0,0,0,0.10)] dark:hover:shadow-[0_8px_48px_rgba(92,198,122,.08)] hover:-translate-y-1 transition-all duration-200 flex flex-col"
                 >
-                  <div className="aspect-[16/10] bg-muted overflow-hidden relative">
+                  <div className="aspect-[16/10] bg-gradient-to-br from-[#E8F8ED] to-[#FFF0E6] overflow-hidden relative">
                     {blog.thumbnail ? (
                       <img
                         src={getMediaUrl(blog.thumbnail)}
                         alt={blog.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-primary/10">
-                        <BookOpen size={64} />
+                      <div className="w-full h-full flex items-center justify-center">
+                        <BookOpen size={48} className="text-[#5CC67A]/30" />
                       </div>
                     )}
-                    <div className="absolute top-6 left-6">
-                      <span className="px-4 py-1.5 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-2xl">
+                    <div className="absolute top-4 left-4">
+                      <span className="px-3 py-1.5 bg-[#5CC67A] text-white text-[11px] font-bold tracking-[0.8px] uppercase rounded-full shadow-lg">
                         {blog.category || 'Security'}
                       </span>
                     </div>
                   </div>
-                  <div className="p-10 flex-1 flex flex-col justify-between space-y-8">
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-6 text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">
-                        <span className="flex items-center gap-2"><Calendar size={14} className="text-primary" /> {new Date(blog.createdAt).toLocaleDateString()}</span>
-                        <span className="flex items-center gap-2"><User size={14} className="text-primary" /> {blog.author || 'Command'}</span>
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4 text-[11px] text-[#6B7068] dark:text-[#94a3b8] transition-colors duration-200">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar size={12} className="text-[#5CC67A]" /> 
+                          {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <User size={12} className="text-[#5CC67A]" /> 
+                          {blog.author || 'Admin'}
+                        </span>
                       </div>
-                      <h3 className="text-2xl font-black tracking-tighter uppercase leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                      <h3 className="font-['Bricolage_Grotesque',sans-serif] text-[18px] font-bold text-[#1A1A18] dark:text-[#f8fafc] group-hover:text-[#5CC67A] transition-colors line-clamp-2 leading-tight">
                         {blog.title}
                       </h3>
-                      <p className="text-sm font-medium text-muted-foreground leading-relaxed line-clamp-3">
-                        {blog.content?.replace(/[#*`]/g, '').substring(0, 150)}...
+                      <p className="text-[14px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.65] line-clamp-3 transition-colors duration-200">
+                        {blog.excerpt || blog.content?.replace(/[#*`]/g, '').substring(0, 120)}...
                       </p>
                     </div>
-                    <div className="pt-8 border-t border-border flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary group-hover:translate-x-3 transition-transform inline-flex items-center gap-3">
-                        Intel Details <ArrowRight size={16} />
+                    <div className="pt-4 border-t border-[#E8E8E4] dark:border-[#1e1e24] flex items-center justify-between transition-colors duration-200">
+                      <span className="text-[13px] font-semibold text-[#5CC67A] group-hover:gap-2 inline-flex items-center gap-1 transition-all">
+                        Read More <ArrowRight size={14} />
                       </span>
                     </div>
                   </div>
                 </Link>
               ))}
 
-              {blogs.length === 0 && (
-                <div className="col-span-full py-32 text-center bg-muted/30 rounded-[4rem] border border-border border-dashed">
-                  <p className="text-muted-foreground font-black uppercase tracking-[0.3em] opacity-40">No intelligence entries found</p>
+              {blogs.length === 0 && !loading && (
+                <div className="col-span-full py-20 text-center bg-white dark:bg-[#111113] rounded-[32px] border-[1.5px] border-dashed border-[#E8E8E4] dark:border-[#1e1e24] transition-colors duration-200">
+                  <BookOpen size={48} className="mx-auto text-[#6B7068] dark:text-[#94a3b8]/20 mb-4 transition-colors duration-200" />
+                  <p className="text-[#6B7068] dark:text-[#f8fafc] font-semibold transition-colors duration-200">No articles found</p>
+                  <p className="text-[13px] text-[#6B7068] dark:text-[#94a3b8]/60 mt-2 transition-colors duration-200">Check back soon for new content</p>
                 </div>
               )}
             </div>

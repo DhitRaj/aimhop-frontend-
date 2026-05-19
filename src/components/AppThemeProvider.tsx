@@ -4,28 +4,44 @@ import { ThemeProvider as PublicThemeProvider } from "@/components/ThemeProvider
 import { usePathname } from "next/navigation";
 import { themeSettings } from "@/styles/theme-settings";
 import { setCookie } from "@/lib/cookies";
-import { authAPI } from "@/lib/api";
+import { authAPI, isLoggedIn } from "@/lib/api";
 import { useTheme } from "next-themes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Inner component to watch for theme changes and sync them.
  * This must be inside the ThemeProvider.
  */
 function ThemeWatcher() {
-  const { theme } = useTheme();
+  const { theme, systemTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!theme) return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
+    // Determine actual theme
+    const actualTheme = resolvedTheme || theme || 'light';
+    
+    // Apply to html element
+    const html = document.documentElement;
+    if (actualTheme === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
     
     // Sync to cookie for SSR
-    setCookie("theme", theme);
+    setCookie("theme", actualTheme);
 
     // Sync to DB (if logged in)
-    if (theme !== 'system') {
+    if (isLoggedIn() && theme && theme !== 'system') {
       authAPI.updatePreferences({ theme }).catch(() => {});
     }
-  }, [theme]);
+  }, [theme, systemTheme, resolvedTheme, mounted]);
 
   return null;
 }
@@ -44,9 +60,10 @@ export function AppThemeProvider({
     <PublicThemeProvider
       attribute="class"
       defaultTheme={initialTheme || themeSettings.defaultTheme}
-      forcedTheme={isAdmin ? "light" : themeSettings.forcedTheme}
+      forcedTheme={isAdmin ? "light" : undefined}
       enableSystem={!isAdmin}
-      disableTransitionOnChange
+      storageKey="theme"
+      themes={["light", "dark"]}
     >
       <ThemeWatcher />
       {children}

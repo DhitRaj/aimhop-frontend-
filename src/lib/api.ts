@@ -27,6 +27,10 @@ interface ApiResponse<T = unknown> {
   data?: T;
   message?: string;
   error?: string;
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
 }
 
 // ==================== Core Fetch Wrapper ====================
@@ -96,11 +100,10 @@ async function apiFetch<T>(
      * Prevents UI crashes by ensuring consistent data structures.
      */
     let normalizedData = rawData;
-    if (rawData && typeof rawData === 'object' && 'data' in rawData) {
-      normalizedData = rawData.data;
-    }
-
-    return { data: normalizedData as T };
+    // For lists, some endpoints return { data: [], total: 0 }, others return []
+    // We return the raw object so UI can access 'total', 'totalPages' etc if present
+    
+    return normalizedData;
   } catch (err) {
     console.error('API Connection Error:', err);
     return { error: 'Could not connect to backend. Is the server running?' };
@@ -121,14 +124,15 @@ export const authAPI = {
 
 export const contactAPI = {
   submit: (body: any) => apiFetch<any>('/api/v1/contact', { method: 'POST', body: JSON.stringify(body) }),
-  getAll: () => apiFetch<any[]>('/api/v1/contact'),
+  getAll: (page = 1, limit = 10) => apiFetch<any>(`/api/v1/contact?page=${page}&limit=${limit}`),
   delete: (id: string) => apiFetch<any>(`/api/v1/contact/${id}`, { method: 'DELETE' }),
 };
 
 export const careerAPI = {
   submit: (formData: FormData) => apiFetch<any>('/api/v1/careers', { method: 'POST', body: formData }),
-  getAll: () => apiFetch<any[]>('/api/v1/careers'),
+  getAll: (page = 1, limit = 10) => apiFetch<any>(`/api/v1/careers?page=${page}&limit=${limit}`),
   delete: (id: string) => apiFetch<any>(`/api/v1/careers/${id}`, { method: 'DELETE' }),
+  downloadResume: (id: string) => `${API_BASE_URL}/api/v1/careers/download/${id}`,
 };
 
 export const serviceAPI = {
@@ -183,4 +187,27 @@ export const blogAPI = {
 
 export const statsAPI = {
   get: () => apiFetch<any>('/api/v1/admin/stats'),
+};
+
+export const inquiryAPI = {
+  // Public — called from /hire multi-step form
+  submit: (body: any) => apiFetch<any>('/api/v1/inquiries', { method: 'POST', body: JSON.stringify(body) }),
+  // Admin
+  getAll: (page = 1, limit = 20, status?: string) =>
+    apiFetch<any>(`/api/v1/inquiries?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`),
+  updateStatus: (id: string, status: string, notes?: string) =>
+    apiFetch<any>(`/api/v1/inquiries/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status, notes }) }),
+  delete: (id: string) => apiFetch<any>(`/api/v1/inquiries/${id}`, { method: 'DELETE' }),
+};
+
+export const workerAPI = {
+  // Public — called from /apply form  
+  submit: (formData: FormData) => apiFetch<any>('/api/v1/workers', { method: 'POST', body: formData }),
+  // Admin
+  getAll: (page = 1, limit = 20, status?: string, category?: string) =>
+    apiFetch<any>(`/api/v1/workers?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}${category ? `&category=${category}` : ''}`),
+  getOne: (id: string) => apiFetch<any>(`/api/v1/workers/${id}`),
+  updateStatus: (id: string, status: string, notes?: string) =>
+    apiFetch<any>(`/api/v1/workers/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status, notes }) }),
+  delete: (id: string) => apiFetch<any>(`/api/v1/workers/${id}`, { method: 'DELETE' }),
 };
