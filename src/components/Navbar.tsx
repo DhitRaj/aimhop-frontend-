@@ -22,9 +22,12 @@ export function Navbar() {
   }, []);
 
   const links = [
-    { name: "Security Services", href: "/#security-services" },
-    { name: "Manpower Services", href: "/#manpower-services" },
+    { name: "Home", href: "/" },
     { name: "About", href: "/about" },
+    { name: "Services", href: "/services" },
+    { name: "Blogs", href: "/blogs" },
+    { name: "Clients", href: "/clients" },
+    ...(settings?.ctaJobEnabled !== false ? [{ name: "Careers", href: "/careers" }] : []),
     { name: "Contact", href: "/contact" },
   ];
 
