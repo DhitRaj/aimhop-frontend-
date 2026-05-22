@@ -33,7 +33,12 @@ import {
   FileText,
   Image as ImageIcon,
   Home,
-  ShieldCheck
+  ShieldCheck,
+  Navigation as NavIcon,
+  Search,
+  LayoutTemplate,
+  LayoutGrid,
+  Building2
 } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
@@ -49,9 +54,15 @@ import { BlogsView } from "./components/BlogsView";
 import { BannersView } from "./components/BannersView";
 import { WorkersView } from "./components/WorkersView";
 import { InquiriesView } from "./components/InquiriesView";
+import { HireCategoryView } from "./components/HireCategoryView";
+import { NavigationsView } from "./components/NavigationsView";
+import { FootersView } from "./components/FootersView";
+import { SEOsView } from "./components/SEOsView";
+import { IndustriesView } from "./components/IndustriesView";
+import { HomepageLayoutView } from "./components/HomepageLayoutView";
 import { Contact, Career, Service, Blog, Client, Testimonial, Banner, Settings, Stats } from "./types";
 
-type Tab = "dashboard" | "inquiries" | "workers" | "messages" | "careers" | "services" | "clients" | "testimonials" | "blogs" | "banners" | "settings";
+type Tab = "dashboard" | "inquiries" | "workers" | "hire_categories" | "messages" | "careers" | "services" | "clients" | "testimonials" | "blogs" | "banners" | "settings" | "navigation" | "footer" | "seo" | "industries" | "homepage_layout";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
@@ -125,7 +136,7 @@ export default function AdminPage() {
 
     // Tab persistence from URL Hash
     const hash = window.location.hash.replace('#', '') as Tab;
-    const validTabs: Tab[] = ["dashboard", "inquiries", "workers", "messages", "careers", "services", "clients", "testimonials", "blogs", "banners", "settings"];
+    const validTabs: Tab[] = ["dashboard", "inquiries", "workers", "hire_categories", "messages", "careers", "services", "clients", "testimonials", "blogs", "banners", "settings", "navigation", "footer", "seo", "industries", "homepage_layout"];
     if (hash && validTabs.includes(hash)) {
       setActiveTab(hash);
     }
@@ -156,13 +167,19 @@ export default function AdminPage() {
     { tab: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { tab: "inquiries", icon: Users, label: "Hire Inquiries" },
     { tab: "workers", icon: ShieldCheck, label: "Worker Pool" },
+    { tab: "hire_categories", icon: Briefcase, label: "Hire Categories" },
     { tab: "messages", icon: Mail, label: "Messages" },
     { tab: "careers", icon: Briefcase, label: "Job Applications" },
     { tab: "services", icon: SettingsIcon, label: "Services" },
+    { tab: "industries", icon: Building2, label: "Industries" },
     { tab: "blogs", icon: FileText, label: "Blog Posts" },
     { tab: "clients", icon: Users, label: "Clients" },
     { tab: "testimonials", icon: MessageSquare, label: "Testimonials" },
     { tab: "banners", icon: ImageIcon, label: "Banners" },
+    { tab: "navigation", icon: NavIcon, label: "Navigation Menu" },
+    { tab: "footer", icon: LayoutTemplate, label: "Footer Layout" },
+    { tab: "seo", icon: Search, label: "SEO Config" },
+    { tab: "homepage_layout", icon: LayoutGrid, label: "Homepage Layout" },
     { tab: "settings", icon: Home, label: "Settings" },
   ];
 
@@ -255,13 +272,19 @@ export default function AdminPage() {
             {activeTab === "dashboard" && <DashboardView stats={stats} latestContacts={contacts} />}
             {activeTab === "inquiries" && <InquiriesView inquiries={inquiries} />}
             {activeTab === "workers" && <WorkersView workers={workers} />}
+            {activeTab === "hire_categories" && <HireCategoryView />}
             {activeTab === "messages" && <MessagesView contacts={contacts} />}
             {activeTab === "careers" && <CareersView careers={careers} />}
             {activeTab === "services" && <ServicesView services={services} refreshAction={fetchData} />}
+            {activeTab === "industries" && <IndustriesView />}
             {activeTab === "clients" && <ClientsView clients={clients} refreshAction={fetchData} />}
             {activeTab === "testimonials" && <TestimonialsView testimonials={testimonials} refreshAction={fetchData} />}
             {activeTab === "blogs" && <BlogsView blogs={blogs} refreshAction={fetchData} />}
             {activeTab === "banners" && <BannersView />}
+            {activeTab === "navigation" && <NavigationsView />}
+            {activeTab === "footer" && <FootersView />}
+            {activeTab === "seo" && <SEOsView />}
+            {activeTab === "homepage_layout" && <HomepageLayoutView />}
             {activeTab === "settings" && <SettingsView settings={settings || { socials: {} } as Settings} refreshAction={fetchData} />}
           </div>
         </main>

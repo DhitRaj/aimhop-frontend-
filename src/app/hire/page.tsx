@@ -1,17 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { ArrowRight, ArrowLeft, Shield, Users, CheckCircle2, Building2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Shield, Users, CheckCircle2, Building2, Camera } from "lucide-react";
 import Link from "next/link";
+import { hireCategoryAPI } from "@/lib/api";
+
+const IconMap: Record<string, any> = {
+  Shield,
+  Users,
+  Camera,
+  Building2,
+};
 
 export default function HireStaffPage() {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     category: "",
-    role: "",
-    count: "1",
+    requirements: [] as { name: string, count: number }[],
     city: "",
     timing: "",
     name: "",
@@ -20,8 +29,48 @@ export default function HireStaffPage() {
     email: ""
   });
 
-  const updateForm = (key: string, value: string) => {
-    setFormData({ ...formData, [key]: value });
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await hireCategoryAPI.getActive();
+        if (res.data) setCategories(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Always use functional setState to avoid stale-closure overwrites
+  const updateForm = (key: string, value: any) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Batch category + requirements reset in one setState call
+  const selectCategory = (cat: string) => {
+    setFormData(prev => ({ ...prev, category: cat, requirements: [] }));
+    setStep(s => Math.min(s + 1, 4));
+  };
+
+  const toggleRole = (roleName: string) => {
+    setFormData(prev => {
+      const exists = prev.requirements.find(r => r.name === roleName);
+      return {
+        ...prev,
+        requirements: exists
+          ? prev.requirements.filter(r => r.name !== roleName)
+          : [...prev.requirements, { name: roleName, count: 1 }]
+      };
+    });
+  };
+
+  const updateRoleCount = (roleName: string, count: number) => {
+    setFormData(prev => ({
+      ...prev,
+      requirements: prev.requirements.map(r => r.name === roleName ? { ...r, count: Math.max(1, count) } : r)
+    }));
   };
 
   const nextStep = () => setStep((s) => Math.min(s + 1, 4));
@@ -67,24 +116,27 @@ export default function HireStaffPage() {
                 <h2 className="text-2xl md:text-3xl font-extrabold mb-2">What do you need to hire?</h2>
                 <p className="text-slate-500 mb-8">Select the primary category of workforce you require.</p>
                 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => { updateForm("category", "SECURITY"); nextStep(); }}
-                    className={`flex flex-col items-center p-8 rounded-xl border-2 transition-all ${formData.category === 'SECURITY' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300'}`}
-                  >
-                    <Shield className={`w-12 h-12 mb-4 ${formData.category === 'SECURITY' ? 'text-emerald-600' : 'text-slate-400'}`} />
-                    <span className="font-bold text-lg">Security Personnel</span>
-                    <span className="text-sm text-slate-500 mt-1">Guards, Bouncers, QRT</span>
-                  </button>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {isLoading ? (
+                    <div className="col-span-3 text-center py-10">Loading categories...</div>
+                  ) : categories.map((cat: any) => {
+                    const IconComponent = IconMap[cat.icon] || Shield;
+                    const isSelected = formData.category === cat.value;
+                    const borderClass = isSelected ? cat.colorClass : 'border-slate-200 dark:border-slate-700 ' + cat.hoverClass;
+                    const iconColor = isSelected ? cat.iconColorClass : 'text-slate-400';
 
-                  <button 
-                    onClick={() => { updateForm("category", "MANPOWER"); nextStep(); }}
-                    className={`flex flex-col items-center p-8 rounded-xl border-2 transition-all ${formData.category === 'MANPOWER' ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'}`}
-                  >
-                    <Users className={`w-12 h-12 mb-4 ${formData.category === 'MANPOWER' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    <span className="font-bold text-lg">Facility Manpower</span>
-                    <span className="text-sm text-slate-500 mt-1">Housekeeping, Staff, Labour</span>
-                  </button>
+                    return (
+                      <button 
+                        key={cat._id}
+                        onClick={() => selectCategory(cat.value)}
+                        className={`flex flex-col items-center p-8 rounded-xl border-2 transition-all ${borderClass}`}
+                      >
+                        <IconComponent className={`w-12 h-12 mb-4 ${iconColor}`} />
+                        <span className="font-bold text-lg">{cat.name}</span>
+                        <span className="text-sm text-slate-500 mt-1">{cat.description}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -96,46 +148,51 @@ export default function HireStaffPage() {
                 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Specific Role Needed</label>
-                    <select 
-                      value={formData.role}
-                      onChange={(e) => updateForm("role", e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 outline-none focus:border-emerald-500"
-                    >
-                      <option value="">Select a role...</option>
-                      {formData.category === "SECURITY" ? (
-                        <>
-                          <option value="Armed Guard">Armed Security Guard</option>
-                          <option value="Unarmed Guard">Unarmed Security Guard</option>
-                          <option value="Corporate Guard">Corporate / IT Security</option>
-                          <option value="Bouncer">Bouncer / VIP Protection</option>
-                          <option value="Event Security">Event Security Team</option>
-                        </>
-                      ) : (
-                        <>
-                          <option value="Housekeeping">Housekeeping Staff</option>
-                          <option value="Office Boy">Office Boy / Peon</option>
-                          <option value="Loader">Warehouse Loader</option>
-                          <option value="Electrician">Electrician / Plumber</option>
-                          <option value="General Labour">General Labour</option>
-                        </>
-                      )}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold mb-2">How many personnel do you need?</label>
-                    <div className="flex items-center gap-4">
-                      <input 
-                        type="range" 
-                        min="1" max="50" 
-                        value={formData.count}
-                        onChange={(e) => updateForm("count", e.target.value)}
-                        className="w-full accent-emerald-500"
-                      />
-                      <div className="w-16 text-center font-bold text-lg bg-slate-100 dark:bg-slate-800 py-2 rounded-lg border border-slate-200 dark:border-slate-700">
-                        {formData.count}
-                      </div>
+                    <label className="block text-sm font-semibold mb-3">Select Roles Needed (Multiple possible)</label>
+                    <div className="grid sm:grid-cols-1 gap-3">
+                      {(categories.find(c => c.value === formData.category)?.roles || []).map((roleOption: string) => {
+                        const isSelected = formData.requirements.some((r: any) => r.name === roleOption);
+                        return (
+                          <div key={roleOption} className={`border rounded-xl p-4 transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300'}`}>
+                            <label className="flex items-center gap-3 cursor-pointer w-full">
+                              <input 
+                                type="checkbox"
+                                className="w-5 h-5 accent-emerald-500"
+                                checked={isSelected}
+                                onChange={() => toggleRole(roleOption)}
+                              />
+                              <span className="font-semibold text-lg">{roleOption}</span>
+                            </label>
+                            {isSelected && (
+                              <div className="mt-4 flex items-center gap-4 pl-8 border-t border-emerald-200 dark:border-emerald-900/30 pt-4">
+                                <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">Personnel count:</span>
+                                <div className="flex items-center">
+                                  <button 
+                                    onClick={() => updateRoleCount(roleOption, Math.max(1, (formData.requirements.find(r => r.name === roleOption)?.count || 1) - 1))}
+                                    className="w-8 h-8 rounded-l-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold hover:bg-slate-300 dark:hover:bg-slate-600"
+                                  >
+                                    -
+                                  </button>
+                                  <input 
+                                    type="number" 
+                                    min="1" 
+                                    max="500" 
+                                    value={formData.requirements.find(r => r.name === roleOption)?.count || 1}
+                                    onChange={(e) => updateRoleCount(roleOption, parseInt(e.target.value) || 1)}
+                                    className="w-16 h-8 bg-slate-50 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700 text-center font-bold outline-none focus:ring-2 focus:ring-emerald-500"
+                                  />
+                                  <button 
+                                    onClick={() => updateRoleCount(roleOption, (formData.requirements.find(r => r.name === roleOption)?.count || 1) + 1)}
+                                    className="w-8 h-8 rounded-r-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold hover:bg-slate-300 dark:hover:bg-slate-600"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -144,7 +201,7 @@ export default function HireStaffPage() {
                   <button onClick={prevStep} className="px-6 py-3 font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">Back</button>
                   <button 
                     onClick={nextStep} 
-                    disabled={!formData.role}
+                    disabled={formData.requirements.length === 0}
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
                   >
                     Continue <ArrowRight className="w-4 h-4" />
@@ -171,9 +228,14 @@ export default function HireStaffPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Shift Timing</label>
+                    <label className="block text-sm font-semibold mb-2">
+                      {formData.category === 'CCTV' ? 'Service Required' : 'Shift Timing'}
+                    </label>
                     <div className="grid grid-cols-3 gap-3">
-                      {['Day Shift', 'Night Shift', '24 Hours'].map(timing => (
+                      {(formData.category === 'CCTV' 
+                        ? ['New Installation', 'Maintenance', 'IT Support']
+                        : ['Day Shift', 'Night Shift', '24 Hours']
+                      ).map(timing => (
                         <button
                           key={timing}
                           onClick={() => updateForm("timing", timing)}
@@ -235,6 +297,15 @@ export default function HireStaffPage() {
                       className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 outline-none focus:border-emerald-500"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">Email Address</label>
+                    <input 
+                      type="email" 
+                      value={formData.email}
+                      onChange={(e) => updateForm("email", e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 outline-none focus:border-emerald-500"
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-10 flex gap-4">
@@ -261,7 +332,7 @@ export default function HireStaffPage() {
                 </div>
                 <h2 className="text-3xl font-extrabold mb-4">Request Received!</h2>
                 <p className="text-slate-500 mb-8 max-w-md mx-auto">
-                  Thank you, {formData.name}. Our enterprise deployment team is reviewing your requirement for {formData.count} {formData.role}(s) in {formData.city}. We will call you shortly on {formData.phone}.
+                  Thank you, {formData.name}. Our enterprise deployment team is reviewing your requirement for {formData.requirements.reduce((sum, r) => sum + r.count, 0)} personnel in {formData.city}. We will call you shortly on {formData.phone}.
                 </p>
                 <Link href="/">
                   <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold px-8 py-3 rounded-lg hover:opacity-90 transition-opacity">

@@ -7,7 +7,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Shield, Camera, Users, Building2, CheckCircle, ArrowRight, Phone, Landmark, Hospital } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { serviceAPI, settingsAPI, bannerAPI } from "@/lib/api";
+import { serviceAPI, settingsAPI, bannerAPI, industryAPI } from "@/lib/api";
 import SafeImage from "@/components/SafeImage";
 import { getMediaUrl } from "@/lib/utils";
 import { useSync } from "@/hooks/useSync";
@@ -17,17 +17,45 @@ export default function ServicesPage() {
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<any>(null);
   const [banner, setBanner] = useState<any>(null);
+  const [industries, setIndustries] = useState<any[]>([]);
+
+  // Safe icon mapping — never use eval()
+  const iconMap: Record<string, React.ReactNode> = {
+    Landmark: <Landmark className="w-8 h-8" />,
+    Hospital: <Hospital className="w-8 h-8" />,
+    Building2: <Building2 className="w-8 h-8" />,
+    Users: <Users className="w-8 h-8" />,
+    Shield: <Shield className="w-8 h-8" />,
+    Camera: <Camera className="w-8 h-8" />,
+    Phone: <Phone className="w-8 h-8" />,
+  };
+
+  // Fallback sectors (original hardcoded data)
+  const fallbackSectors = [
+    { title: "Financial & Banking", desc: "ATM security, cash-in-transit protection, and bank branch guarding with strict protocol adherence.", icon: "Landmark" },
+    { title: "Healthcare Facilities", desc: "Hospital security, patient safety management, and 24/7 entry point monitoring.", icon: "Hospital" },
+    { title: "Industrial & Manufacturing", desc: "Factory security, asset protection, perimeter defense, and material movement monitoring.", icon: "Building2" },
+    { title: "Retail & Residential", desc: "Mall security, loss prevention, residential society guarding with focus on courtesy.", icon: "Users" },
+  ];
 
   const fetchData = async () => {
     try {
-      const [serRes, setRes, banRes] = await Promise.all([
+      const [serRes, setRes, banRes, indRes] = await Promise.all([
         serviceAPI.getAll(), 
         settingsAPI.get(), 
-        bannerAPI.getAll(true, 'Services')
+        bannerAPI.getAll(true, 'Services'),
+        industryAPI.getAll()
       ]);
       if (serRes.data) setServices(serRes.data as any[]);
       if (setRes.data) setSettings(setRes.data);
       if (banRes.data && (banRes.data as any[]).length > 0) setBanner((banRes.data as any[])[0]);
+      if (indRes.data && Array.isArray(indRes.data) && indRes.data.length > 0) {
+        setIndustries(
+          (indRes.data as any[])
+            .filter((i: any) => i.isActive !== false)
+            .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+        );
+      }
     } catch (error) {
       console.error("Error fetching services data:", error);
     } finally {
@@ -155,34 +183,16 @@ export default function ServicesPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {[
-                { 
-                  title: "Financial & Banking", 
-                  desc: "ATM security, cash-in-transit protection, and bank branch guarding with strict protocol adherence.", 
-                  icon: <Landmark className="w-8 h-8" /> 
-                },
-                { 
-                  title: "Healthcare Facilities", 
-                  desc: "Hospital security, patient safety management, and 24/7 entry point monitoring.", 
-                  icon: <Hospital className="w-8 h-8" /> 
-                },
-                { 
-                  title: "Industrial & Manufacturing", 
-                  desc: "Factory security, asset protection, perimeter defense, and material movement monitoring.", 
-                  icon: <Building2 className="w-8 h-8" /> 
-                },
-                { 
-                  title: "Retail & Residential", 
-                  desc: "Mall security, loss prevention, residential society guarding with focus on courtesy.", 
-                  icon: <Users className="w-8 h-8" /> 
-                },
-              ].map((sector, idx) => (
+              {(industries.length > 0
+                ? industries.map(i => ({ title: i.title, desc: i.description, icon: i.icon || 'Shield' }))
+                : fallbackSectors
+              ).map((sector, idx) => (
                 <div 
                   key={idx} 
                   className="p-8 bg-white dark:bg-[#111113] border-[1.5px] border-[#E8E8E4] dark:border-[#1e1e24] rounded-[20px] hover:shadow-[0_4px_28px_rgba(92,198,122,.12)] dark:hover:shadow-[0_4px_28px_rgba(92,198,122,.08)] hover:-translate-y-1 transition-all duration-200 flex gap-6 items-start"
                 >
                   <div className="w-16 h-16 shrink-0 rounded-[14px] bg-gradient-to-br from-[#E8F8ED] dark:from-[#1e3a28] to-[#FFF0E6] dark:to-[#3a2618] flex items-center justify-center text-[#5CC67A] transition-colors duration-200">
-                    {sector.icon}
+                    {iconMap[sector.icon] || <Shield className="w-8 h-8" />}
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-['Bricolage_Grotesque',sans-serif] text-[18px] font-bold text-[#1A1A18] dark:text-[#f8fafc] transition-colors duration-200">{sector.title}</h4>

@@ -15,6 +15,8 @@ export interface Career {
   phone: string;
   position: string;
   experience: string;
+  height?: string;
+  weight?: string;
   resumeUrl: string;
   message?: string;
   createdAt: string;
@@ -120,6 +122,12 @@ export interface Settings {
   // Toggles
   ctaJobEnabled?: boolean;
 
+  // Certifications & Compliance
+  isoCertification?: string;
+  gstNumber?: string;
+  psaraLicense?: string;
+  complianceLabels?: string[];
+
   socials: {
     facebook?: string;
     twitter?: string;
@@ -129,4 +137,48 @@ export interface Settings {
   };
 
   [key: string]: any;
+}
+
+export interface Navigation {
+  _id: string;
+  label: string;
+  url: string;
+  isExternal: boolean;
+  order: number;
+  isActive: boolean;
+  parentId?: string | null;
+}
+
+export interface FooterLink {
+  _id?: string;
+  label: string;
+  url: string;
+  isExternal: boolean;
+}
+
+export interface FooterSection {
+  _id: string;
+  columnName: string;
+  order: number;
+  isActive: boolean;
+  links: FooterLink[];
+}
+
+export interface SEOData {
+  _id: string;
+  pageRoute: string;
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string[];
+  ogImage?: string;
+  canonicalUrl?: string;
+}
+
+export interface Industry {
+  _id: string;
+  title: string;
+  description: string;
+  icon?: string;
+  order: number;
+  isActive: boolean;
 }

@@ -5,61 +5,23 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Shield, Phone, Menu, X } from "lucide-react";
-import { settingsAPI, navigationAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
 
-// Fallback static links (preserved from original hardcoded data)
-const fallbackLinks = [
-  { name: "Home", href: "/", isExternal: false },
-  { name: "About", href: "/about", isExternal: false },
-  { name: "Services", href: "/services", isExternal: false },
-  { name: "Blogs", href: "/blogs", isExternal: false },
-  { name: "Clients", href: "/clients", isExternal: false },
-  { name: "Careers", href: "/careers", isExternal: false },
-  { name: "Contact", href: "/contact", isExternal: false },
-];
+interface NavbarClientProps {
+  settings: any;
+  links: { name: string; href: string; isExternal?: boolean }[];
+}
 
-export function Navbar() {
+export function NavbarClient({ settings, links }: NavbarClientProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [settings, setSettings] = useState<any>(null);
-  const [links, setLinks] = useState(fallbackLinks);
   const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
-
-    // Fetch settings
-    settingsAPI.get().then(res => { if(res.data) setSettings(res.data); });
-
-    // Fetch dynamic navigation
-    navigationAPI.getAll().then(res => {
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-        const dynamicLinks = res.data
-          .filter((item: any) => item.isActive !== false)
-          .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-          .map((item: any) => ({
-            name: item.label,
-            href: item.url,
-            isExternal: item.isExternal || false,
-          }));
-        if (dynamicLinks.length > 0) {
-          setLinks(dynamicLinks);
-        }
-      }
-    }).catch(() => {
-      // Keep fallback links on error
-    });
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Filter Careers link based on settings toggle (preserve original behavior)
-  const visibleLinks = links.filter(l => {
-    if (l.name === "Careers" && settings?.ctaJobEnabled === false) return false;
-    return true;
-  });
 
   return (
     <>
@@ -111,16 +73,16 @@ export function Navbar() {
 
           {/* Desktop nav */}
           <ul className="hidden lg:flex gap-1 items-center">
-            {visibleLinks.map(l => {
+            {links.map(l => {
               const isActive = pathname === l.href;
               return (
                 <li key={l.name}>
                   {l.isExternal ? (
                     <a 
-                      href={l.href}
+                      href={l.href} 
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[14.5px] font-medium px-3.5 py-2 rounded-lg transition-all text-[#6B7068] dark:text-[#94a3b8] hover:bg-[#E8F8ED] dark:hover:bg-[#1e3a28] hover:text-[#3daa5e] dark:hover:text-[#7de09a]"
+                      className={`text-[14.5px] font-medium px-3.5 py-2 rounded-lg transition-all text-[#6B7068] dark:text-[#94a3b8] hover:bg-[#E8F8ED] dark:hover:bg-[#1e3a28] hover:text-[#3daa5e] dark:hover:text-[#7de09a]`}
                     >
                       {l.name}
                     </a>
@@ -188,17 +150,17 @@ export function Navbar() {
             </button>
           </div>
           
-          <div className="flex flex-col gap-6">
-            {visibleLinks.map((l, i) => {
+          <div className="flex flex-col gap-6 overflow-y-auto max-h-[60vh]">
+            {links.map((l, i) => {
               const isActive = pathname === l.href;
               return l.isExternal ? (
                 <a 
                   key={l.name} 
-                  href={l.href}
+                  href={l.href} 
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setMobileOpen(false)} 
-                  className="text-2xl font-bold tracking-tight transition-all text-[#1A1A18] dark:text-[#f8fafc] opacity-50 hover:opacity-100"
+                  className={`text-2xl font-bold tracking-tight transition-all text-[#1A1A18] dark:text-[#f8fafc] opacity-50 hover:opacity-100`}
                   style={{ transitionDelay: `${i * 50}ms` }}
                 >
                   {l.name}
@@ -219,7 +181,7 @@ export function Navbar() {
             })}
           </div>
           
-          <div className="mt-auto space-y-4">
+          <div className="mt-auto space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <Link 
               href="/hire" 
               onClick={() => setMobileOpen(false)}

@@ -106,6 +106,11 @@ export function CareersView({ careers: initialCareers }: { careers: Career[] }) 
                 <td className="px-6 py-4">
                   <p className="text-xs font-bold text-slate-900 uppercase tracking-tight">{app.name}</p>
                   <p className="text-[10px] font-bold text-slate-400">{app.email}</p>
+                  {(app.height || app.weight) && (
+                    <p className="text-[9px] font-semibold text-slate-500 mt-0.5">
+                      {app.height ? `H: ${app.height}` : ''} {app.weight ? `| W: ${app.weight}` : ''}
+                    </p>
+                  )}
                   <p className="text-[9px] text-slate-400 mt-1">{new Date(app.createdAt).toLocaleDateString()}</p>
                 </td>
                 <td className="px-6 py-4">

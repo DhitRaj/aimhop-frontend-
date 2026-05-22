@@ -275,7 +275,7 @@ export function BannersView() {
                 {/* Image Upload */}
                 <div className="space-y-1.5">
                   <label className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Image</label>
-                  <p className="text-[9px] text-slate-400 italic mb-2">* Recommended size: 1920x600px (Balanced wide aspect) for best results.</p>
+                  <p className="text-[9px] text-slate-400 italic mb-2">* Recommended size: Auto for best results.</p>
                   <div className="relative group">
                     {imagePreview ? (
                       <div className="relative aspect-[3.2/1] bg-slate-50 dark:bg-slate-950 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">

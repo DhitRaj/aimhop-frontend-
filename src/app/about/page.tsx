@@ -47,7 +47,7 @@ export default function AboutPage() {
                   Professional security services you can trust
                 </h2>
                 <p className="text-[17px] text-[#6B7068] dark:text-[#94a3b8] leading-[1.7] transition-colors duration-200">
-                  AimHop Security Solutions Private Limited is an ISO 9001:2015 certified security service provider established in 2020. We specialize in providing comprehensive security solutions across India with trained professionals and modern technology.
+                  AimHop Security Solutions Private Limited is an {settings?.isoCertification || 'ISO 9001:2015'} certified security service provider established in 2020. We specialize in providing comprehensive security solutions across India with trained professionals and modern technology.
                 </p>
               </div>
 
@@ -108,7 +108,7 @@ export default function AboutPage() {
                   <div className="pt-6 border-t border-[#5CC67A]/20 dark:border-[#5CC67A]/10">
                     <div className="flex items-center gap-3">
                       <Award className="w-5 h-5 text-[#5CC67A]" />
-                      <span className="text-[11px] font-bold text-[#6B7068] dark:text-[#94a3b8] uppercase tracking-[0.8px] transition-colors duration-200">ISO 9001:2015 Certified</span>
+                      <span className="text-[11px] font-bold text-[#6B7068] dark:text-[#94a3b8] uppercase tracking-[0.8px] transition-colors duration-200">{settings?.isoCertification || 'ISO 9001:2015'} Certified</span>
                     </div>
                   </div>
                 </div>

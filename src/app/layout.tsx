@@ -21,7 +21,7 @@ export async function generateViewport(): Promise<Viewport> {
   const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
   let settings: any = null;
   try {
-    const res = await fetch(`${API_URL}/api/v1/settings`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/api/v1/settings`, { next: { tags: ['settings'], revalidate: 3600 } });
     const contentType = res.headers.get('content-type');
     if (res.ok && contentType && contentType.includes('application/json')) {
       settings = await res.json();
@@ -42,36 +42,44 @@ export async function generateViewport(): Promise<Viewport> {
 export async function generateMetadata(): Promise<Metadata> {
   const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/$/, '');
   let settings: any = null;
+  let seoData: any = null;
+  
   try {
-    const res = await fetch(`${API_URL}/api/v1/settings`, { cache: 'no-store' });
-    const contentType = res.headers.get('content-type');
-    if (res.ok && contentType && contentType.includes('application/json')) {
-      settings = await res.json();
-    } else {
-      const text = await res.text().catch(() => '');
-      console.warn("Layout metadata: Received non-JSON or error response", { status: res.status, text: text.substring(0, 50) });
+    const [resSettings, resSeo] = await Promise.all([
+      fetch(`${API_URL}/api/v1/settings`, { next: { tags: ['settings'], revalidate: 3600 } }),
+      fetch(`${API_URL}/api/v1/seo/route/${encodeURIComponent('/')}`, { next: { tags: ['seo', 'seo-/'], revalidate: 3600 } })
+    ]);
+    
+    if (resSettings.ok) settings = await resSettings.json();
+    
+    if (resSeo.ok) {
+      const seoJson = await resSeo.json();
+      seoData = seoJson?.data || null;
     }
   } catch (e) {
     console.error("Layout metadata fetch error:", e);
   }
 
-
   const siteTitle = settings?.siteName || "AimHop Security Solutions Pvt. Ltd.";
-  const siteDescription = settings?.siteDescription || "India's leading security solutions agency. We provide highly trained security guards, electronic surveillance (CCTV), bouncers, and facility management services.";
+  const defaultDesc = "India's leading security solutions agency. We provide highly trained security guards, electronic surveillance (CCTV), bouncers, and facility management services.";
+  
   const faviconPath = settings?.favicon 
     ? `${getMediaUrl(settings.favicon)}${settings.updatedAt ? '?v=' + new Date(settings.updatedAt).getTime() : ''}` 
     : "/favicon.ico";
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aimhop.com";
+  const finalTitle = seoData?.metaTitle || siteTitle;
+  const finalDescription = seoData?.metaDescription || settings?.siteDescription || defaultDesc;
+  const finalOgImage = seoData?.ogImage || "/og-image.jpg";
 
   return {
     metadataBase: new URL(baseUrl),
     title: {
-      default: siteTitle,
+      default: finalTitle,
       template: `%s | ${siteTitle}`,
     },
-    description: siteDescription,
+    description: finalDescription,
     applicationName: "AimHop",
-    keywords: [
+    keywords: seoData?.keywords?.length > 0 ? seoData.keywords : [
       "Security Guards", 
       "CCTV Surveillance", 
       "Bouncers", 
@@ -91,7 +99,7 @@ export async function generateMetadata(): Promise<Metadata> {
       telephone: true,
     },
     alternates: {
-      canonical: "/",
+      canonical: seoData?.canonicalUrl || "/",
     },
     manifest: "/manifest.json",
     icons: {
@@ -103,27 +111,27 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: faviconPath,
     },
     openGraph: {
-      title: siteTitle,
-      description: siteDescription,
+      title: finalTitle,
+      description: finalDescription,
       url: baseUrl,
       siteName: siteTitle,
       locale: "en_IN",
       type: "website",
       images: [
         {
-          url: "/og-image.jpg", // Make sure this exists or use a dynamic one
+          url: finalOgImage,
           width: 1200,
           height: 630,
-          alt: siteTitle,
+          alt: finalTitle,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: siteTitle,
-      description: siteDescription,
+      title: finalTitle,
+      description: finalDescription,
       creator: "@aimhop",
-      images: ["/og-image.jpg"],
+      images: [finalOgImage],
     },
     robots: {
       index: true,

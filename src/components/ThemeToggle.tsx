@@ -5,7 +5,7 @@ import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
   // Avoid hydration mismatch
@@ -15,24 +15,24 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-10 h-10 rounded-[10px] bg-[#F1F5F9] animate-pulse" />
+      <div className="w-9 h-9 rounded-md bg-slate-100 dark:bg-slate-800 animate-pulse" />
     )
   }
 
-  const isDark = theme === "dark"
+  const isDark = (resolvedTheme || theme) === "dark"
 
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="relative w-10 h-10 flex items-center justify-center rounded-[10px] bg-[#FAFAF8] dark:bg-[#1e1e24] border-[1.5px] border-[#E8E8E4] dark:border-[#2a2a32] hover:border-[#5CC67A] dark:hover:border-[#5CC67A] hover:bg-[#E8F8ED] dark:hover:bg-[#1e293b] transition-all duration-200 group"
+      className="relative inline-flex items-center justify-center w-9 h-9 rounded-md text-slate-700 dark:text-slate-200 hover:text-amber-500 dark:hover:text-amber-300 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      role="switch"
+      aria-checked={isDark}
     >
-      {isDark ? (
-        <Moon className="h-[18px] w-[18px] text-[#94a3b8] group-hover:text-[#5CC67A] transition-colors duration-200" />
-      ) : (
-        <Sun className="h-[18px] w-[18px] text-[#6B7068] group-hover:text-[#FF8C47] transition-colors duration-200" />
-      )}
+      <span className="sr-only">{isDark ? 'Enable light mode' : 'Enable dark mode'}</span>
+      <Sun className={`absolute h-4 w-4 transition-opacity duration-200 ${isDark ? 'opacity-0' : 'opacity-100'}`} />
+      <Moon className={`absolute h-4 w-4 transition-opacity duration-200 ${isDark ? 'opacity-100' : 'opacity-0'}`} />
     </button>
   )
 }

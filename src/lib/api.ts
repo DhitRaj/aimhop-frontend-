@@ -3,7 +3,8 @@
  * Hardened Production API Client — with Next.js cache tags for revalidation
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000');
+const API_TIMEOUT_MS = 15000;
 
 // ==================== Token Management ====================
 // Auth is strictly handled via httpOnly cookies.
@@ -39,6 +40,7 @@ async function apiFetch<T>(
   endpoint: string,
   options: RequestInit & { next?: { revalidate?: number; tags?: string[] } } = {}
 ): Promise<ApiResponse<T>> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
   try {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 
@@ -79,6 +81,10 @@ async function apiFetch<T>(
     // If caller explicitly passed next tags, honor them
     if (next) fetchOptions.next = next;
 
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    fetchOptions.signal = controller.signal;
+
     const res = await fetch(`${API_BASE_URL}${cleanEndpoint}`, fetchOptions);
 
     const contentType = res.headers.get('content-type');
@@ -106,7 +112,13 @@ async function apiFetch<T>(
     return normalizedData;
   } catch (err) {
     console.error('API Connection Error:', err);
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      return { error: 'Backend request timed out. Please try again.' };
+    }
     return { error: 'Could not connect to backend. Is the server running?' };
+  } finally {
+    // Keep request timers from leaking after success/failure.
+    if (timeoutId) clearTimeout(timeoutId);
   }
 }
 
@@ -211,3 +223,47 @@ export const workerAPI = {
     apiFetch<any>(`/api/v1/workers/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status, notes }) }),
   delete: (id: string) => apiFetch<any>(`/api/v1/workers/${id}`, { method: 'DELETE' }),
 };
+
+export const hireCategoryAPI = {
+  getActive: () => apiFetch<any[]>('/api/v1/hire-categories/active'),
+  // Admin
+  getAll: () => apiFetch<any[]>('/api/v1/hire-categories'),
+  create: (body: any) => apiFetch<any>('/api/v1/hire-categories', { method: 'POST', body: JSON.stringify(body) }),
+  update: (id: string, body: any) => apiFetch<any>(`/api/v1/hire-categories/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: (id: string) => apiFetch<any>(`/api/v1/hire-categories/${id}`, { method: 'DELETE' }),
+};
+
+export const navigationAPI = {
+  getAll: () => apiFetch<any[]>('/api/v1/navigation'),
+  create: (body: any) => apiFetch<any>('/api/v1/navigation', { method: 'POST', body: JSON.stringify(body) }),
+  update: (id: string, body: any) => apiFetch<any>(`/api/v1/navigation/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: (id: string) => apiFetch<any>(`/api/v1/navigation/${id}`, { method: 'DELETE' }),
+};
+
+export const footerAPI = {
+  getAll: () => apiFetch<any[]>('/api/v1/footer'),
+  create: (body: any) => apiFetch<any>('/api/v1/footer', { method: 'POST', body: JSON.stringify(body) }),
+  update: (id: string, body: any) => apiFetch<any>(`/api/v1/footer/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: (id: string) => apiFetch<any>(`/api/v1/footer/${id}`, { method: 'DELETE' }),
+};
+
+export const seoAPI = {
+  getAll: () => apiFetch<any[]>('/api/v1/seo'),
+  getByRoute: (route: string) => apiFetch<any>(`/api/v1/seo/route/${route}`),
+  create: (body: any) => apiFetch<any>('/api/v1/seo', { method: 'POST', body: JSON.stringify(body) }),
+  update: (id: string, body: any) => apiFetch<any>(`/api/v1/seo/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: (id: string) => apiFetch<any>(`/api/v1/seo/${id}`, { method: 'DELETE' }),
+};
+
+export const industryAPI = {
+  getAll: () => apiFetch<any[]>('/api/v1/industries'),
+  create: (body: any) => apiFetch<any>('/api/v1/industries', { method: 'POST', body: JSON.stringify(body) }),
+  update: (id: string, body: any) => apiFetch<any>(`/api/v1/industries/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: (id: string) => apiFetch<any>(`/api/v1/industries/${id}`, { method: 'DELETE' }),
+};
+
+export const pageLayoutAPI = {
+  getByRoute: (route: string) => apiFetch<any>(`/api/v1/pages/layout/${route}`),
+  updateByRoute: (route: string, body: any) => apiFetch<any>(`/api/v1/pages/layout/${route}`, { method: 'PUT', body: JSON.stringify(body) }),
+};
+

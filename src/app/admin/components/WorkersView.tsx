@@ -18,13 +18,16 @@ interface WorkerData {
   _id: string;
   fullName: string;
   phone: string;
-  category: "SECURITY" | "MANPOWER";
+  category: string;
   role: string;
   city: string;
   expectedSalary: number;
   aadhaarNumber?: string;
   aadhaarDocUrl?: string;
   photoUrl?: string;
+  height?: string;
+  weight?: string;
+  resumeUrl?: string;
   status: "PENDING" | "REVIEWING" | "VERIFIED" | "REJECTED";
   notes?: string;
   createdAt: string;
@@ -129,6 +132,11 @@ export function WorkersView({ workers: initialWorkers }: { workers: WorkerData[]
                     <div>
                       <p className="text-xs font-bold text-slate-900 uppercase tracking-tight">{w.fullName}</p>
                       <p className="text-[10px] font-bold text-slate-500">{w.phone}</p>
+                      {(w.height || w.weight) && (
+                        <p className="text-[9px] font-semibold text-slate-400 mt-0.5">
+                          {w.height ? `H: ${w.height}` : ''} {w.weight ? `| W: ${w.weight}` : ''}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -143,13 +151,18 @@ export function WorkersView({ workers: initialWorkers }: { workers: WorkerData[]
                   <span className="text-[10px] font-bold text-slate-900">₹{w.expectedSalary || "0"}/mo</span>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-1.5">
                     {w.aadhaarDocUrl ? (
                       <a href={w.aadhaarDocUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:underline uppercase tracking-wider">
                         <FileText size={12} /> Aadhaar
                       </a>
                     ) : (
                       <span className="text-[9px] font-bold text-slate-400 uppercase">No Aadhaar</span>
+                    )}
+                    {w.resumeUrl && (
+                      <a href={w.resumeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 hover:underline uppercase tracking-wider">
+                        <FileText size={12} /> Resume
+                      </a>
                     )}
                   </div>
                 </td>
@@ -198,7 +211,7 @@ export function WorkersView({ workers: initialWorkers }: { workers: WorkerData[]
                     </Button>
                   </div>
                 </td>
-              </tr>
+               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>

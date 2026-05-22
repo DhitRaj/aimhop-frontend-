@@ -28,26 +28,28 @@ const getCityName = (slug: string) => {
 };
 
 interface PageProps {
-  params: {
+  params: Promise<{
     category: string;
     service: string;
     city: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const service = getServiceName(params.service);
-  const city = getCityName(params.city);
+  const { service: serviceSlug, city: citySlug } = await params;
+  const service = getServiceName(serviceSlug);
+  const city = getCityName(citySlug);
   return {
     title: `Hire ${service} in ${city} | AimHop`,
     description: `Deploy verified, trained ${service} services in ${city}. 100% police checked, PSARA compliant, and backed by 48hr SLA deployment guarantee.`
   };
 }
 
-export default function ServiceCityLandingPage({ params }: PageProps) {
-  const service = getServiceName(params.service);
-  const city = getCityName(params.city);
-  const isSecurity = params.category.toLowerCase() === "security";
+export default async function ServiceCityLandingPage({ params }: PageProps) {
+  const { category, service: serviceSlug, city: citySlug } = await params;
+  const service = getServiceName(serviceSlug);
+  const city = getCityName(citySlug);
+  const isSecurity = category.toLowerCase() === "security";
 
   const features = isSecurity
     ? [
@@ -107,7 +109,7 @@ export default function ServiceCityLandingPage({ params }: PageProps) {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Link 
-                href={`/hire?category=${params.category}&role=${encodeURIComponent(service)}&city=${encodeURIComponent(city)}`}
+                href={`/hire?category=${category}&role=${encodeURIComponent(service)}&city=${encodeURIComponent(city)}`}
                 className="bg-[#2563EB] hover:bg-blue-700 text-white font-bold px-6 py-3.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
               >
                 Hire Now <ArrowRight className="w-4 h-4" />

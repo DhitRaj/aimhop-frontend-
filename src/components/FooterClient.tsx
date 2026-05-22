@@ -1,54 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { settingsAPI, footerAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
 
-// Fallback static footer data (preserved from original hardcoded content)
-const fallbackSections = [
-  {
-    _id: "fb-1",
-    columnName: "Security Services",
-    order: 1,
-    isActive: true,
-    links: [
-      { label: "Armed Guard", url: "/security/armed-security-guard/mumbai", isExternal: false },
-      { label: "Unarmed Guard", url: "/security/unarmed-security-guard/mumbai", isExternal: false },
-      { label: "Corporate Security", url: "/security/corporate-security/mumbai", isExternal: false },
-      { label: "Event Security", url: "/security/event-security/mumbai", isExternal: false },
-      { label: "Bouncers", url: "/security/bouncers-vip-protection/mumbai", isExternal: false },
-      { label: "CCTV / QRT", url: "/security/cctv-monitoring-qrt/mumbai", isExternal: false },
-    ]
-  },
-  {
-    _id: "fb-2",
-    columnName: "Manpower Services",
-    order: 2,
-    isActive: true,
-    links: [
-      { label: "Housekeeping", url: "/manpower/housekeeping-staff/mumbai", isExternal: false },
-      { label: "Office Boy", url: "/manpower/office-boy-peon/mumbai", isExternal: false },
-      { label: "Skilled Labour", url: "/manpower/labour-factory-workers/mumbai", isExternal: false },
-      { label: "Driver", url: "/manpower/driver-personal-corporate/mumbai", isExternal: false },
-      { label: "Electrician", url: "/manpower/electrician-plumber/mumbai", isExternal: false },
-      { label: "Warehouse Staff", url: "/manpower/warehouse-packing-staff/mumbai", isExternal: false },
-    ]
-  },
-  {
-    _id: "fb-3",
-    columnName: "Cities",
-    order: 3,
-    isActive: true,
-    links: [
-      { label: "Mumbai", url: "/security/unarmed-security-guard/mumbai", isExternal: false },
-      { label: "Delhi", url: "/security/unarmed-security-guard/delhi", isExternal: false },
-      { label: "Pune", url: "/security/unarmed-security-guard/pune", isExternal: false },
-      { label: "Bangalore", url: "/security/unarmed-security-guard/bangalore", isExternal: false },
-      { label: "Hyderabad", url: "/security/unarmed-security-guard/hyderabad", isExternal: false },
-    ]
-  }
-];
+interface FooterLink {
+  label: string;
+  url: string;
+  isExternal: boolean;
+}
+
+interface FooterSectionData {
+  _id: string;
+  columnName: string;
+  order: number;
+  isActive: boolean;
+  links: FooterLink[];
+}
+
+interface FooterClientProps {
+  settings: any;
+  sections: FooterSectionData[];
+}
 
 const FacebookIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -78,36 +50,12 @@ const LinkedinIcon = ({ size = 18 }: { size?: number }) => (
   </svg>
 );
 
-export function Footer() {
-  const [settings, setSettings] = useState<any>(null);
-  const [sections, setSections] = useState(fallbackSections);
-
-  useEffect(() => {
-    // Fetch settings
-    settingsAPI.get().then((res) => {
-      if (res.data) setSettings(res.data);
-    }).catch(console.error);
-
-    // Fetch dynamic footer sections
-    footerAPI.getAll().then((res) => {
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-        const dynamicSections = (res.data as any[])
-          .filter((s: any) => s.isActive !== false)
-          .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
-        if (dynamicSections.length > 0) {
-          setSections(dynamicSections);
-        }
-      }
-    }).catch(() => {
-      // Keep fallback sections on error
-    });
-  }, []);
-
+export function FooterClient({ settings, sections }: FooterClientProps) {
   return (
     <footer className="bg-amber-50 text-slate-800 pt-16 pb-8 border-t border-amber-200">
       <div className="max-w-[1240px] mx-auto px-8 md:px-12">
         {/* Main footer grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
+        <div className={`grid md:grid-cols-2 lg:grid-cols-${Math.min(sections.length + 2, 5)} gap-12 mb-12`}>
           
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-6">
@@ -156,8 +104,8 @@ export function Footer() {
                   <li key={idx}>
                     {link.isExternal ? (
                       <a 
-                        href={link.url}
-                        target="_blank"
+                        href={link.url} 
+                        target="_blank" 
                         rel="noopener noreferrer"
                         className="text-[14.5px] text-slate-700 hover:text-[#10B981] transition-colors"
                       >

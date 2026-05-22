@@ -101,6 +101,8 @@ export function SettingsView({ settings: initialSettings, refreshAction }: { set
       Object.keys(settings).forEach(key => {
         if (key === 'socials') {
           formData.append('socials', JSON.stringify(settings.socials || {}));
+        } else if (key === 'complianceLabels') {
+          formData.append('complianceLabels', JSON.stringify(settings.complianceLabels || []));
         } else if (!['_id', '__v', 'createdAt', 'updatedAt', 'logo', 'favicon', 'heroImage', 'contactImage', 'directorImage', 'cctvImage'].includes(key)) {
           const val = settings[key];
           formData.append(key, val === undefined || val === null ? '' : String(val));
@@ -136,6 +138,7 @@ export function SettingsView({ settings: initialSettings, refreshAction }: { set
   const navItems = [
     { id: "general", label: "General Info", icon: Database, desc: "Basic website info" },
     { id: "branding", label: "Logo & Branding", icon: Shield, desc: "Logos & website icons" },
+    { id: "certifications", label: "Certifications", icon: FileText, desc: "ISO, GST & Licenses" },
     { id: "homepage", label: "Home Content", icon: Monitor, desc: "Sections on the homepage" },
     { id: "director", label: "Director Info", icon: User, desc: "Message & profile" },
     { id: "stats", label: "Stats Counters", icon: Activity, desc: "Numbers & achievements" },
@@ -225,6 +228,45 @@ export function SettingsView({ settings: initialSettings, refreshAction }: { set
               </div>
             )}
 
+            {activeSubTab === "certifications" && (
+              <div className="space-y-10 animate-in fade-in duration-300">
+                <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
+                   <div>
+                     <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Certifications & Compliance</h3>
+                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Manage certifications, GST and compliance labels</p>
+                   </div>
+                   <Button type="submit" variant="primary" size="sm" isLoading={saving} leftIcon={!saving && <Save size={14} />}>Save</Button>
+                </div>
+                <div className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-1">
+                    <label className={labelClass}>ISO Certification Text</label>
+                    <input type="text" value={settings?.isoCertification || ''} onChange={e => setSettings({...settings, isoCertification: e.target.value})} className={inputClass} placeholder="ISO 9001:2015" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={labelClass}>PSARA License Text</label>
+                    <input type="text" value={settings?.psaraLicense || ''} onChange={e => setSettings({...settings, psaraLicense: e.target.value})} className={inputClass} placeholder="PSARA Licensed" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className={labelClass}>GST Registration Number</label>
+                  <input type="text" value={settings?.gstNumber || ''} onChange={e => setSettings({...settings, gstNumber: e.target.value})} className={inputClass} placeholder="GST No. Reg: U74999UP2020PTC136479" />
+                </div>
+                <div className="space-y-1">
+                  <label className={labelClass}>Compliance Badges / Labels (Comma-separated)</label>
+                  <input 
+                    type="text" 
+                    value={Array.isArray(settings?.complianceLabels) ? settings.complianceLabels.join(', ') : settings?.complianceLabels || ''} 
+                    onChange={e => setSettings({...settings, complianceLabels: e.target.value.split(',').map((s: string) => s.trim())})} 
+                    className={inputClass} 
+                    placeholder="ISO 9001:2015, PSARA Licensed" 
+                  />
+                  <p className="text-[10px] text-slate-400 font-medium italic mt-2">
+                    * Enter a list of compliance labels separated by commas. These will render in the footer trust badges section.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {activeSubTab === "branding" && (
               <div className="space-y-10 animate-in fade-in duration-300">
                 <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
@@ -306,7 +348,7 @@ export function SettingsView({ settings: initialSettings, refreshAction }: { set
                     <textarea rows={2} value={settings?.heroSubtitle || ''} onChange={e => setSettings({...settings, heroSubtitle: e.target.value})} className={inputClass + " resize-none font-medium"} placeholder="AimHop Security Solutions Pvt. Ltd..." />
                   </div>
                   <p className="text-[9px] text-slate-400 italic mt-2">
-                    * This serves as the Global Fallback Banner. It will appear on any page that doesn't have a specific banner assigned in the "Banner Management" section. Recommended size: 1920x500px.
+                    * This serves as the Global Fallback Banner. It will appear on any page that doesn't have a specific banner assigned in the "Banner Management" section. Recommended size: Auto.
                   </p>
                   </div>
                 </div>
