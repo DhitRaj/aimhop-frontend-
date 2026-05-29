@@ -247,12 +247,7 @@ export function SettingsView({ settings: initialSettings, refreshAction }: { set
   const navItems = [
     { id: "general", label: "General Info", icon: Database, desc: "Basic website info" },
     { id: "branding", label: "Logo & Branding", icon: Shield, desc: "Logos & website icons" },
-    { id: "certifications", label: "Certifications", icon: FileText, desc: "ISO, GST & Licenses" },
-    { id: "homepage", label: "Home Content", icon: Monitor, desc: "Sections on the homepage" },
-    { id: "director", label: "Director Info", icon: User, desc: "Message & profile" },
-    { id: "stats", label: "Stats Counters", icon: Activity, desc: "Numbers & achievements" },
     { id: "social", label: "Social Media", icon: Share2, desc: "Links to social platforms" },
-    { id: "ctas", label: "Recruitment Toggle", icon: SettingsIcon, desc: "Turn careers on/off" }, 
     { id: "security", label: "Change Password", icon: Lock, desc: "Change admin password" },
   ];
 
