@@ -34,10 +34,6 @@ import {
   Image as ImageIcon,
   Home,
   ShieldCheck,
-  Navigation as NavIcon,
-  Search,
-  LayoutTemplate,
-  LayoutGrid,
   Building2
 } from "lucide-react";
 
@@ -55,14 +51,10 @@ import { BannersView } from "./components/BannersView";
 import { WorkersView } from "./components/WorkersView";
 import { InquiriesView } from "./components/InquiriesView";
 import { HireCategoryView } from "./components/HireCategoryView";
-import { NavigationsView } from "./components/NavigationsView";
-import { FootersView } from "./components/FootersView";
-import { SEOsView } from "./components/SEOsView";
 import { IndustriesView } from "./components/IndustriesView";
-import { HomepageLayoutView } from "./components/HomepageLayoutView";
 import { Contact, Career, Service, Blog, Client, Testimonial, Banner, Settings, Stats } from "./types";
 
-type Tab = "dashboard" | "inquiries" | "workers" | "hire_categories" | "messages" | "careers" | "services" | "clients" | "testimonials" | "blogs" | "banners" | "settings" | "navigation" | "footer" | "seo" | "industries" | "homepage_layout";
+type Tab = "dashboard" | "inquiries" | "workers" | "hire_categories" | "messages" | "careers" | "services" | "clients" | "testimonials" | "blogs" | "banners" | "settings" | "industries";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
@@ -136,7 +128,7 @@ export default function AdminPage() {
 
     // Tab persistence from URL Hash
     const hash = window.location.hash.replace('#', '') as Tab;
-    const validTabs: Tab[] = ["dashboard", "inquiries", "workers", "hire_categories", "messages", "careers", "services", "clients", "testimonials", "blogs", "banners", "settings", "navigation", "footer", "seo", "industries", "homepage_layout"];
+    const validTabs: Tab[] = ["dashboard", "inquiries", "workers", "hire_categories", "messages", "careers", "services", "clients", "testimonials", "blogs", "banners", "settings", "industries"];
     if (hash && validTabs.includes(hash)) {
       setActiveTab(hash);
     }
@@ -176,10 +168,6 @@ export default function AdminPage() {
     { tab: "clients", icon: Users, label: "Clients" },
     { tab: "testimonials", icon: MessageSquare, label: "Testimonials" },
     { tab: "banners", icon: ImageIcon, label: "Banners" },
-    { tab: "navigation", icon: NavIcon, label: "Navigation Menu" },
-    { tab: "footer", icon: LayoutTemplate, label: "Footer Layout" },
-    { tab: "seo", icon: Search, label: "SEO Config" },
-    { tab: "homepage_layout", icon: LayoutGrid, label: "Homepage Layout" },
     { tab: "settings", icon: Home, label: "Settings" },
   ];
 
@@ -281,10 +269,6 @@ export default function AdminPage() {
             {activeTab === "testimonials" && <TestimonialsView testimonials={testimonials} refreshAction={fetchData} />}
             {activeTab === "blogs" && <BlogsView blogs={blogs} refreshAction={fetchData} />}
             {activeTab === "banners" && <BannersView />}
-            {activeTab === "navigation" && <NavigationsView />}
-            {activeTab === "footer" && <FootersView />}
-            {activeTab === "seo" && <SEOsView />}
-            {activeTab === "homepage_layout" && <HomepageLayoutView />}
             {activeTab === "settings" && <SettingsView settings={settings || { socials: {} } as Settings} refreshAction={fetchData} />}
           </div>
         </main>
