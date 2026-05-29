@@ -140,13 +140,6 @@ const LoginPage = () => {
               Sign In
             </Button>
           </form>
-
-          {/* Footer Info */}
-          <div className="mt-8 pt-6 border-t-2 border-gray-200">
-            <p className="text-xs text-gray-600 text-center font-light">
-              Demo: <span className="text-gray-800 font-semibold">admin@aimhop.com</span> / <span className="text-gray-800 font-semibold">admin123</span>
-            </p>
-          </div>
         </div>
 
         {/* Bottom Text */}

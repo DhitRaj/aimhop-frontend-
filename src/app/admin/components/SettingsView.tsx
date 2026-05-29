@@ -22,12 +22,121 @@ import {
   ArrowRight,
   Monitor,
   Activity,
-  Briefcase
+  Briefcase,
+  Lock
 } from "lucide-react";
-import { settingsAPI } from "@/lib/api";
+import { settingsAPI, authAPI } from "@/lib/api";
 import { getMediaUrl } from "@/lib/utils";
 import SafeImage from "@/components/SafeImage";
 import { Settings } from "../types";
+
+function SecuritySettingsView() {
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (newPassword.length < 6) {
+      setError("New password must be at least 6 characters long.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError("New password and confirm password do not match.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await authAPI.changePassword({ oldPassword, newPassword });
+      if (response.error) {
+        setError(response.error);
+      } else {
+        setSuccess("Password updated successfully!");
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to update password.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputClass = "w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all placeholder:text-slate-400";
+  const labelClass = "text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1 mb-2 block";
+
+  return (
+    <div className="space-y-10 animate-in fade-in duration-300">
+      <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50">
+        <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-[0.1em]">Security & Password</h3>
+        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Update administrator credentials</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="max-w-md space-y-6">
+        <div className="space-y-1">
+          <label className={labelClass}>Current Password</label>
+          <input
+            type="password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            className={inputClass}
+            placeholder="Enter current password..."
+            required
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelClass}>New Password</label>
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className={inputClass}
+            placeholder="Enter new password..."
+            required
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelClass}>Confirm New Password</label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={inputClass}
+            placeholder="Confirm new password..."
+            required
+          />
+        </div>
+
+        {error && (
+          <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/50 rounded-xl text-xs text-red-600 dark:text-red-400 font-semibold uppercase tracking-wider">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-xs text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider">
+            {success}
+          </div>
+        )}
+
+        <Button type="submit" variant="primary" isLoading={loading} leftIcon={!loading && <Save size={16} />}>
+          Update Password
+        </Button>
+      </form>
+    </div>
+  );
+}
 
 export function SettingsView({ settings: initialSettings, refreshAction }: { settings: Settings, refreshAction: () => void }) {
   const getDefaultFeature = (idx: number) => ({
@@ -144,6 +253,7 @@ export function SettingsView({ settings: initialSettings, refreshAction }: { set
     { id: "stats", label: "Stats Counters", icon: Activity, desc: "Numbers & achievements" },
     { id: "social", label: "Social Media", icon: Share2, desc: "Links to social platforms" },
     { id: "ctas", label: "Recruitment Toggle", icon: SettingsIcon, desc: "Turn careers on/off" }, 
+    { id: "security", label: "Change Password", icon: Lock, desc: "Change admin password" },
   ];
 
   const inputClass = "w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all placeholder:text-slate-400";
@@ -186,8 +296,15 @@ export function SettingsView({ settings: initialSettings, refreshAction }: { set
         </aside>
 
         {/* Configuration Interface */}
-        <form id="settings-form" onSubmit={handleSave} className="h-full overflow-y-auto bg-white dark:bg-slate-900">
-          <div className="p-10 lg:p-14 max-w-4xl mx-auto space-y-14">
+        {activeSubTab === "security" ? (
+          <div className="h-full overflow-y-auto bg-white dark:bg-slate-900">
+            <div className="p-10 lg:p-14 max-w-4xl mx-auto space-y-10">
+              <SecuritySettingsView />
+            </div>
+          </div>
+        ) : (
+          <form id="settings-form" onSubmit={handleSave} className="h-full overflow-y-auto bg-white dark:bg-slate-900">
+            <div className="p-10 lg:p-14 max-w-4xl mx-auto space-y-14">
             {activeSubTab === "general" && (
               <div className="space-y-10 animate-in fade-in duration-300">
                 <div className="pb-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
@@ -576,6 +693,7 @@ export function SettingsView({ settings: initialSettings, refreshAction }: { set
             )}
           </div>
         </form>
+        )}
       </div>
     </div>
   );

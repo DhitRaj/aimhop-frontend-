@@ -130,6 +130,7 @@ export const authAPI = {
   logout: async () => apiFetch<{ message: string }>('/api/v1/auth/logout', { method: 'POST' }),
   me: async () => apiFetch<any>('/api/v1/auth/me'),
   updatePreferences: async (preferences: any) => apiFetch<any>('/api/v1/auth/preferences', { method: 'PATCH', body: JSON.stringify(preferences) }),
+  changePassword: async (body: any) => apiFetch<any>('/api/v1/auth/change-password', { method: 'PUT', body: JSON.stringify(body) }),
 };
 
 // ==================== Domain APIs ====================
