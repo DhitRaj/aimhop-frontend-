@@ -4,7 +4,7 @@
  */
 
 const API_BASE_URL = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000');
-const API_TIMEOUT_MS = 15000;
+const API_TIMEOUT_MS = 30000;
 
 // ==================== Token Management ====================
 // Auth is strictly handled via httpOnly cookies.
@@ -83,6 +83,15 @@ async function apiFetch<T>(
 
     const controller = new AbortController();
     timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    
+    // Link caller's abort signal if available
+    if (options.signal) {
+      if (options.signal.aborted) {
+        controller.abort();
+      } else {
+        options.signal.addEventListener('abort', () => controller.abort());
+      }
+    }
     fetchOptions.signal = controller.signal;
 
     const res = await fetch(`${API_BASE_URL}${cleanEndpoint}`, fetchOptions);
@@ -110,11 +119,12 @@ async function apiFetch<T>(
     // We return the raw object so UI can access 'total', 'totalPages' etc if present
     
     return normalizedData;
-  } catch (err) {
-    console.error('API Connection Error:', err);
+  } catch (err: any) {
     if (err instanceof DOMException && err.name === 'AbortError') {
+      console.warn(`[API Timeout/Abort] Request to ${endpoint} was aborted.`);
       return { error: 'Backend request timed out. Please try again.' };
     }
+    console.error('API Connection Error:', err);
     return { error: 'Could not connect to backend. Is the server running?' };
   } finally {
     // Keep request timers from leaking after success/failure.
